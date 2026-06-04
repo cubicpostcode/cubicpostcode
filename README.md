@@ -1,20 +1,15 @@
 # CubicPostcode
 
-Universal 22-digit postcode system based on 1m³ cubic grid in ECEF coordinates.
+The open, precise, 3D universal addressing system.
+
+More professional, free, and collaborative than what3words.
 
 ## Features
-- Fool-proof algorithms with full reversibility
-- Corrected Python implementations
-- Interactive website
+- 1m³ resolution
+- Cross-platform apps
+- Fully open source
 
-## Quick Start
-```bash
-git clone https://github.com/cubicpostcode/cubicpostcode.git
-cd cubicpostcode
-python xyz2cube.py
-```
+Live site: https://cubicpostcode.github.io/cubicpostcode/
 
-See `index.html` for full documentation and pseudocode.
-
-## Status
-Algorithms improved and bugs fixed with Grok assistance.
+## Mobile App
+See `apps/mobile/`
