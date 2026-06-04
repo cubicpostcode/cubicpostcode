@@ -1,16 +1,20 @@
-## Hi there 👋
+# CubicPostcode
 
-<!--
-**cubicpostcode/cubicpostcode** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Universal 22-digit postcode system based on 1m³ cubic grid in ECEF coordinates.
 
-Here are some ideas to get you started:
+## Features
+- Fool-proof algorithms with full reversibility
+- Corrected Python implementations
+- Interactive website
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## Quick Start
+```bash
+git clone https://github.com/cubicpostcode/cubicpostcode.git
+cd cubicpostcode
+python xyz2cube.py
+```
+
+See `index.html` for full documentation and pseudocode.
+
+## Status
+Algorithms improved and bugs fixed with Grok assistance.
