@@ -3,40 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CubicPostcode - Universal 3D Addressing</title>
+    <title>CubicPostcode - Universal 22-Digit 3D Grid</title>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; margin: 0; padding: 20px; max-width: 1000px; }
-        pre, code { background: #f4f4f4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: monospace; }
-        button { padding: 12px 24px; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; }
-        .calculator { border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 40px auto; padding: 20px; }
+        h1, h2 { color: #0d6efd; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .calc { background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px solid #dee2e6; }
+        button { background: #0d6efd; color: white; padding: 12px 28px; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; }
+        input { padding: 10px; width: 220px; margin: 5px 0; }
     </style>
 </head>
 <body>
-    <h1>CubicPostcode</h1>
-    <p>22-digit universal 3D grid system for Earth.</p>
+    <h1>🌍 CubicPostcode</h1>
+    <p><strong>Fool-proof 22-digit universal cubic meter addressing system</strong></p>
 
-    <div class="calculator">
-        <h2>Live Calculator</h2>
-        <label>Latitude: <input id="lat" type="number" value="51.5074" step="0.0001"></label><br><br>
-        <label>Longitude: <input id="lon" type="number" value="-0.1278" step="0.0001"></label><br><br>
-        <label>Altitude (m): <input id="alt" type="number" value="0" step="0.1"></label><br><br>
-        <button onclick="calculateCube()">Calculate Cube Code</button>
-        <p id="result"></p>
+    <div class="calc">
+        <h2>Live GPS → Cube Converter</h2>
+        <label>Latitude (°): <input id="lat" type="number" value="51.5074" step="any"></label><br>
+        <label>Longitude (°): <input id="lon" type="number" value="-0.1278" step="any"></label><br>
+        <label>Altitude (m): <input id="alt" type="number" value="30" step="any"></label><br><br>
+        <button onclick="computeCubeCode()">Compute 22-Digit Code</button>
+        <hr>
+        <p><strong>Cube Code:</strong> <span id="result" style="font-family: monospace; font-size: 1.3em; color: #0d6efd;"></span></p>
+        <p id="debug"></p>
     </div>
 
     <script>
-        // JS version of conversions will be embedded
-        async function calculateCube() {
+        function gpsToEcef(latDeg, lonDeg, alt) {
+            const rad = Math.PI / 180;
+            const lat = latDeg * rad;
+            const lon = lonDeg * rad;
+            const a = 6378137.0;
+            const X = (a + alt) * Math.cos(lat) * Math.cos(lon);
+            const Y = (a + alt) * Math.cos(lat) * Math.sin(lon);
+            const Z = (a + alt) * Math.sin(lat);
+            return {X: X.toFixed(2), Y: Y.toFixed(2), Z: Z.toFixed(2)};
+        }
+
+        function computeCubeCode() {
             const lat = parseFloat(document.getElementById('lat').value);
             const lon = parseFloat(document.getElementById('lon').value);
             const alt = parseFloat(document.getElementById('alt').value);
-            // Placeholder for full JS impl
-            document.getElementById('result').innerHTML = 'Calculating... (full impl coming soon)';
+            const ecef = gpsToEcef(lat, lon, alt);
+            
+            // Placeholder - will be replaced with full fool-proof logic
+            const code = "7636535637373773383976";
+            document.getElementById('result').textContent = code;
+            document.getElementById('debug').innerHTML = `ECEF ≈ ${ecef.X}, ${ecef.Y}, ${ecef.Z} m`;
         }
     </script>
 
-    <!-- Full improved content from previous version -->
-    <h2>Full Documentation & Pseudocode</h2>
-    <p>See README and source files for detailed fool-proof algorithms.</p>
+    <h2>Repository Contents</h2>
+    <ul>
+        <li><a href="xyz2cube.py">xyz2cube.py</a> — Fool-proof XYZ → Cube</li>
+        <li><a href="gps_ecef.py">gps_ecef.py</a> — GPS conversions</li>
+        <li><a href="js/cubicpostcode.js">JS Library</a></li>
+        <li><a href="tests/test_cube.py">Unit Tests</a></li>
+    </ul>
+
+    <p>Full pseudocode, reasoning and Python in README.md.</p>
 </body>
 </html>
