@@ -196,7 +196,7 @@
             <h2 style="margin-bottom: 24px; text-align: center;">Cube Code → GPS</h2>
             <div style="max-width: 600px; margin: 0 auto;">
                 <label>22-digit Cube Code</label>
-                <input type="text" id="cubeInput" placeholder="3508604036759635400000" style="margin-bottom: 16px;">
+                <input type="text" id="cubeInput" placeholder="3508604036759635400000" maxlength="22" inputmode="numeric" style="margin-bottom: 16px; font-family: monospace; letter-spacing: 2px;" oninput="validateCubeInput(this)">
                 <button onclick="convertCubeToGPS()">Convert to GPS</button>
                 
                 <div id="gpsResult" class="result" style="margin-top: 20px; font-size: 1.1rem;"></div>
@@ -316,11 +316,27 @@
             }
         }
         
+        // Strict Cube Code input validation
+        function validateCubeInput(input) {
+            let value = input.value;
+            // Remove non-digits
+            value = value.replace(/\D/g, '');
+            // Enforce max 22 digits
+            if (value.length > 22) {
+                value = value.substring(0, 22);
+            }
+            input.value = value;
+        }
+        
         // Placeholder reverse converter
         function convertCubeToGPS() {
             const code = document.getElementById('cubeInput').value.trim();
-            if (code.length < 20) {
-                alert("Please enter a valid 22-digit cube code");
+            if (code.length === 0) {
+                document.getElementById('gpsResult').innerHTML = "Please enter a Cube Code";
+                return;
+            }
+            if (code.length !== 22 || !/^\d{22}$/.test(code)) {
+                document.getElementById('gpsResult').innerHTML = "❌ Invalid: Must be exactly 22 digits (0-9 only)";
                 return;
             }
             document.getElementById('gpsResult').innerHTML = `
