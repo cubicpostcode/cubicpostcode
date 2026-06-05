@@ -1,307 +1,149 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CubicPostcode - Precise 3D Universal Addressing</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+
+    <title>CubicPostcode.com</title>
+
     <style>
-        :root {
-            --primary: #3b82f6;
-            --bg: #0f172a;
-            --card: #1e2937;
-            --success: #22c55e;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap');
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            margin: 0; padding: 0;
-            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
-            color: #e2e8f0;
-            line-height: 1.6;
+              background-image: url("images/bg3.jpg");
+              background-repeat: repeat;
         }
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        header { text-align: center; padding: 40px 20px; }
-        h1 { color: #60a5fa; margin: 0; font-size: 2.8em; }
-        .tagline { font-size: 1.3em; color: #94a3b8; }
-        .converter {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 16px;
-            margin: 30px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        
+        .btns-wrap{
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            margin: 0;
+            flex-flow: wrap;
+            height: 100%;
+            max-width: 1380px;
+            margin: 0 auto;
         }
-        input {
+        
+     .btns-wrap li {
+       display: inline-block;
+       background: #28a0f9;
+       color: #fff;   
+       min-width: 400px;
+       max-width: 400px;
+       width: 100%;
+       margin: 5px 15px;
+       font-size: 100%;
+       text-align: center;
+       padding: 5px 5px;
+       border-radius: 20px;   
+       font-family: 'Noto Sans', sans-serif;
+       }
+        
+        @media screen and (max-width: 767px) {
+          .btns-wrap li {
+            min-width: 75px;
+            max-width: 75px;
             width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            background: #334155;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 1.1em;
+          }
         }
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 1.1em;
+        .btns-wrap a{
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .btns-wrap li:hover{
+            transition: 0.5s ease all;
+            background: #0776c7;
             cursor: pointer;
-            font-weight: bold;
-            margin: 5px;
+            box-shadow: 0px 2px 15px 0px #b1b1b1;
         }
-        button.success { background: var(--success); }
-        #result {
-            font-family: 'Courier New', monospace;
-            font-size: 1.85em;
-            letter-spacing: 3px;
-            background: #1e2937;
-            padding: 20px;
-            border-radius: 8px;
-            display: inline-block;
-            min-width: 420px;
+        
+        @media screen and ( max-width: 767px){
+            .btns-wrap li{
+                min-width: 45%;
+                font-size: 24px;
+            }
         }
-        .copy-btn { padding: 16px 24px; font-size: 1.2em; vertical-align: middle; }
-        .info, .benefits {
-            background: var(--card);
-            padding: 25px;
-            border-radius: 16px;
-            margin: 20px 0;
+        
+        @media screen and ( max-width: 580px){
+            .btns-wrap li{
+                min-width: 90%;
+                font-size: 20px;
+            }
         }
-        footer { text-align: center; padding: 30px; color: #64748b; }
-        .error { color: #ef4444; margin-top: 10px; }
-        .status { font-size: 0.95em; padding: 8px; border-radius: 6px; margin: 10px 0; }
     </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🌍 CubicPostcode</h1>
-            <p class="tagline">22-digit universal 1m³ addressing system</p>
-            <p><strong>Free • Open Source • Precise • Live GPS</strong></p>
-        </header>
 
-        <div class="converter">
-            <h2>Live Converter + GPS Tracking</h2>
-            
-            <button onclick="getCurrentLocation()" style="width:100%; margin-bottom:15px;">
-                📍 Use My Current Location
-            </button>
-            
-            <button id="trackBtn" onclick="toggleTracking()" style="width:100%;">
-                🔴 Start Live Tracking
-            </button>
-
-            <label>Latitude (°)</label>
-            <input type="text" id="lat" value="51.5074" oninput="computeCubeCode()">
-
-            <label>Longitude (°)</label>
-            <input type="text" id="lon" value="-0.1278" oninput="computeCubeCode()">
-
-            <label>Altitude (meters)</label>
-            <input type="text" id="alt" value="25" oninput="computeCubeCode()">
-
-            <button onclick="computeCubeCode()">Compute Cube Code</button>
-
-            <p style="margin-top:20px;">
-                <strong>Your Cube Code:</strong><br>
-                <span id="result">----------------------</span>
-                <button id="copyBtn" class="copy-btn" onclick="copyToClipboard()">📋 Copy</button>
-            </p>
-
-            <div id="status" class="status"></div>
-            <div id="debug" style="margin-top:15px; font-size:0.95em; color:#94a3b8;"></div>
-            <div id="error" class="error"></div>
-        </div>
-
-        <div class="info">
-            <h2>Why CubicPostcode?</h2>
-            <ul>
-                <li>✅ True 1m³ 3D precision</li>
-                <li>✅ Live GPS tracking</li>
-                <li>✅ Completely free & open source</li>
-                <li>✅ Works offline (manual input)</li>
-            </ul>
-        </div>
-
-        <footer>
-            <p><a href="https://github.com/cubicpostcode/cubicpostcode" style="color:#60a5fa;">GitHub</a> | Open for contributions</p>
-        </footer>
-    </div>
-
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDG3NX05J6"></script>
     <script>
-        const SIDE = 21000000;
-        const LAYER_SIZE = SIDE * SIDE;
-        let watchId = null;
-
-        function gpsToEcef(latDeg, lonDeg, alt = 0) {
-            const a = 6378137.0;
-            const f = 1 / 298.257223563;
-            const b = a * (1 - f);
-            const e2 = 1 - (b * b / (a * a));
-
-            const lat = latDeg * Math.PI / 180;
-            const lon = lonDeg * Math.PI / 180;
-            const sinLat = Math.sin(lat);
-
-            const N = a / Math.sqrt(1 - e2 * sinLat * sinLat);
-
-            const X = (N + alt) * Math.cos(lat) * Math.cos(lon);
-            const Y = (N + alt) * Math.cos(lat) * Math.sin(lon);
-            const Z = (N * (1 - e2) + alt) * Math.sin(lat);
-
-            return { X, Y, Z };
-        }
-
-        function coordRound(x) {
-            return x >= 0 ? Math.floor(x) : Math.floor(x) - 1;
-        }
-
-        function xyzToCube(X, Y, Z) {
-            const x = coordRound(X);
-            const y = coordRound(Y);
-            const z = coordRound(Z);
-
-            const sq = Math.max(Math.abs(y), Math.abs(z)) + 1;
-            const left_top = (2 * (sq - 1)) ** 2 + 1;
-            const rt = left_top + 2 * sq - 1;
-            const rb = rt + 2 * sq - 1;
-            const lb = rb + 2 * sq - 1;
-
-            let cube_p;
-            if (sq === -y) {
-                cube_p = (sq === z + 1) ? left_top : lb + (z + sq);
-            } else if (sq === y + 1) {
-                cube_p = rt + (sq - 1 - z);
-            } else if (sq === z + 1) {
-                cube_p = rt - (sq + y);
-            } else {
-                cube_p = rb + (sq - y);
-            }
-
-            const layer = (x >= 0) ? x * 2 : -x * 2 - 1;
-            const code = layer * LAYER_SIZE + cube_p;
-            return code.toString().padStart(22, '0');
-        }
-
-        function computeCubeCode() {
-            const lat = parseFloat(document.getElementById('lat').value);
-            const lon = parseFloat(document.getElementById('lon').value);
-            const alt = parseFloat(document.getElementById('alt').value || 0);
-            const resultEl = document.getElementById('result');
-            const debugEl = document.getElementById('debug');
-            const errorEl = document.getElementById('error');
-
-            errorEl.textContent = '';
-
-            if (isNaN(lat) || isNaN(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) {
-                errorEl.textContent = 'Invalid coordinates';
-                resultEl.textContent = '----------------------';
-                return;
-            }
-
-            const ecef = gpsToEcef(lat, lon, alt);
-            const code = xyzToCube(ecef.X, ecef.Y, ecef.Z);
-
-            resultEl.textContent = code;
-            debugEl.innerHTML = `
-                📍 ${lat.toFixed(6)}, ${lon.toFixed(6)} (alt: ${alt.toFixed(1)}m)<br>
-                ECEF: ${ecef.X.toFixed(2)}, ${ecef.Y.toFixed(2)}, ${ecef.Z.toFixed(2)} m
-            `;
-        }
-
-        function updatePosition(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const alt = position.coords.altitude !== null ? position.coords.altitude : 0;
-
-            document.getElementById('lat').value = lat.toFixed(6);
-            document.getElementById('lon').value = lon.toFixed(6);
-            document.getElementById('alt').value = alt.toFixed(1);
-
-            document.getElementById('status').innerHTML = 
-                `✅ Live tracking active • Accuracy: ±${position.coords.accuracy.toFixed(1)}m`;
-            document.getElementById('status').style.background = '#166534';
-
-            computeCubeCode();
-        }
-
-        function getCurrentLocation() {
-            if (!navigator.geolocation) {
-                alert("Geolocation is not supported by your browser.");
-                return;
-            }
-
-            const statusEl = document.getElementById('status');
-            statusEl.textContent = '📍 Getting location...';
-            statusEl.style.background = '#854d0e';
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    updatePosition(position);
-                },
-                (error) => {
-                    let msg = "Location error: ";
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED: msg += "Permission denied"; break;
-                        case error.POSITION_UNAVAILABLE: msg += "Position unavailable"; break;
-                        case error.TIMEOUT: msg += "Timeout"; break;
-                        default: msg += "Unknown error";
-                    }
-                    document.getElementById('error').textContent = msg;
-                    statusEl.textContent = '';
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        }
-
-        function toggleTracking() {
-            const btn = document.getElementById('trackBtn');
-            
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-                watchId = null;
-                btn.textContent = '🔴 Start Live Tracking';
-                btn.style.background = '';
-                document.getElementById('status').textContent = 'Tracking stopped';
-                document.getElementById('status').style.background = '';
-            } else {
-                if (!navigator.geolocation) {
-                    alert("Geolocation not supported.");
-                    return;
-                }
-                watchId = navigator.geolocation.watchPosition(
-                    updatePosition,
-                    (error) => {
-                        document.getElementById('error').textContent = "Tracking error: " + error.message;
-                    },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                );
-                btn.textContent = '🟢 Stop Live Tracking';
-                btn.style.background = '#22c55e';
-            }
-        }
-
-        function copyToClipboard() {
-            const code = document.getElementById('result').textContent;
-            if (code.includes('-')) return;
-
-            navigator.clipboard.writeText(code).then(() => {
-                const btn = document.getElementById('copyBtn');
-                const original = btn.innerHTML;
-                btn.innerHTML = '✅ Copied!';
-                btn.style.background = '#22c55e';
-                setTimeout(() => {
-                    btn.innerHTML = original;
-                    btn.style.background = '#3b82f6';
-                }, 1500);
-            });
-        }
-
-        // Initial load
-        window.onload = () => {
-            computeCubeCode();
-        };
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-QDG3NX05J6');
     </script>
+</head>
+
+<body>
+<!-- This project is hosted at Microsoft/GitHub: https://github.com/cubicpostcode/ -->
+    <h1>
+        <ul class="btns-wrap">
+
+            <a href="JEPA.html"><li>JEPA</li></a>
+            
+            <a href="calc/mobileGPS.html"><li>Mobile device with GPS</li></a>
+            
+            <a href="calc/1cube2xyz.html"><li>Convert cube to xyz</li></a>
+            
+            <a href="calc/2cube2gps.html"><li>Convert cube to gps</li></a>
+            
+            <a href="calc/3xyz2cube.html"><li>Convert xyz to cube</li></a>
+            
+            <a href="calc/4xyz2gps.html"><li>Convert xyz to gps</li></a>
+            
+            <a href="calc/5gps2xyz.html"><li>Convert gps to xyz</li></a>
+            
+            <a href="calc/6gps2cube.html"><li>Convert gps to cube</li></a>
+
+            <a href="http://spacegoo.com/maze/"><li>M@ZEcrosoft 🙂</li></a>
+            
+            <a href="My_book.pdf"><li>MathBook ↓</li></a>     
+
+            <a href="9999words.html"><li>9999WORDS</li></a>  
+
+            <a href="assets/mastering_maidsafe.html"><li>Mastering MaidSafe</li></a> 
+
+            <a href="quantum_photon_leveler"><li>Quantum Leveler</li></a>             
+            
+            <a href="https://www.patreon.com/cubicpostcode"><li><img src="images/patreon3.png" alt="Patreon">  Patreon</li></a>
+           
+            <a href="games"><li> Games</li></a>
+            
+            <a href="website"><li> ENTER web<img src="images/heart_ts3.png">site </li></a>
+
+            <a href="screensaver"><li> Screensaver</li></a>
+
+            <a href="RANDOM12NOTES.html"><li> RANDOM12NOTES</li></a>
+
+            <a href="popeye_counter.html"><li> Popeye Counter</li></a>
+
+            <a href="popeye_counter_20_90.html"><li> Popeye Counter [20..90]</li></a>
+
+            <a href="certificate"><li> Certificate</li></a>
+           
+        </ul>
+        <center><img src="images/Apache_Blender_logo.jpg" height="59" width="202" alt="Blender.org"></center>
+    </h1>
+    <br><br>
+    <center>
+    <div>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Uj-l3QVTaHE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    </center>  <br><br>  <br><br>
 </body>
+
 </html>
