@@ -11,6 +11,28 @@
         .calc { background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px solid #dee2e6; }
         button { background: #0d6efd; color: white; padding: 12px 28px; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; }
         input { padding: 10px; width: 220px; margin: 5px 0; }
+        #copyBtn {
+            margin-left: 12px;
+            padding: 10px 16px;
+            background: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            vertical-align: middle;
+            min-width: 110px;
+        }
+        #copyBtn:hover {
+            background: #0b5ed7;
+        }
+        #result {
+            font-family: monospace;
+            font-size: 1.45em;
+            color: #0d6efd;
+            letter-spacing: 3px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -24,7 +46,10 @@
         <label>Altitude (m): <input id="alt" type="number" value="30" step="any"></label><br><br>
         <button onclick="computeCubeCode()">Compute 22-Digit Code</button>
         <hr>
-        <p><strong>Cube Code:</strong> <span id="result" style="font-family: monospace; font-size: 1.3em; color: #0d6efd;"></span></p>
+        <p><strong>Cube Code:</strong> 
+            <span id="result"></span>
+            <button id="copyBtn" onclick="copyToClipboard()" style="display: none;">📋 Copy</button>
+        </p>
         <p id="debug"></p>
     </div>
 
@@ -50,6 +75,28 @@
             const code = "7636535637373773383976";
             document.getElementById('result').textContent = code;
             document.getElementById('debug').innerHTML = `ECEF ≈ ${ecef.X}, ${ecef.Y}, ${ecef.Z} m`;
+            
+            // Show copy button
+            document.getElementById('copyBtn').style.display = 'inline-block';
+        }
+
+        function copyToClipboard() {
+            const code = document.getElementById('result').textContent;
+            if (!code) return;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                btn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#0d6efd';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy: ' + err);
+            });
         }
     </script>
 
