@@ -278,17 +278,45 @@
             `;
         }
         
-        function copyCube() {
-            const text = document.getElementById('cubeResult').textContent;
-            if (text.length > 5) {
-                navigator.clipboard.writeText(text).then(() => {
-                    const btn = event.target;
-                    const orig = btn.textContent;
-                    btn.textContent = "✅ Copied!";
-                    setTimeout(() => btn.textContent = orig, 2000);
-                });
-            }
-        }
+function copyCube() {
+  const resultElement = document.getElementById('cubeResult');
+  if (!resultElement) {
+    console.error("Element with id 'cubeResult' not found!");
+    return;
+  }
+
+  const cubeCode = resultElement.textContent.trim();
+  const textToCopy = cubeCode + "#CubicPostcode";
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(textToCopy)
+    .then(() => {
+      // Optional: Visual feedback
+      const btn = document.querySelector('button[onclick="copyCube()"]') || 
+                  document.getElementById('copyBtn');
+      
+      if (btn) {
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      } else {
+        alert('✅ Copied to clipboard: ' + textToCopy);
+      }
+    })
+    .catch(err => {
+      console.error('Failed to copy: ', err);
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('✅ Copied (fallback): ' + textToCopy);
+    });
+}
         
         function validateCubeInput(input) {
             let value = input.value.replace(/\D/g, '');
