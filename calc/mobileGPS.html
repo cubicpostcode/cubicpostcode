@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>CubicPostcode - Live GPS Converter</title>
+    <style>
+        body{
+            background-color:#f4f4f4;
+        }
+        .card{
+            box-shadow: 0 0 10px #0000002b;
+        }
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+        -moz-appearance: textfield;
+        }
+    </style>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDG3NX05J6"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+        
+          gtag('config', 'G-QDG3NX05J6');
+        </script>
+  </head>
+  <body>
+      
+    <div class="container py-5">
+        <div class="row">
+
+            <div class="col-12">
+                <div class="card">
+                  
+                    <div class="card-body">         
+                        <h4 class="font-weight-bold mb-3" >Live GPS Converter + GPS Tracking</h4>  
+                        <br> 
+                        <p style="font-size: 18px;"><strong>Latitude: </strong> <span id="lat"></span></p>
+                        <p style="font-size: 18px;"><strong>Longitude: </strong> <span id="lon"></span></p>
+                        <p style="font-size: 18px;"><strong>Altitude: </strong> <span id="alt"></span></p>
+                        <br>
+                        <p style="font-size: 18px;"><strong>X: </strong> <span id="x"></span></p>
+                        <p style="font-size: 18px;"><strong>Y: </strong> <span id="y"></span></p>
+                        <p style="font-size: 18px;"><strong>Z: </strong> <span id="z"></span></p>                     
+                        <br>     
+                        <p style="font-size: 18px;"><strong>Cube code:</strong> <span id="cube-code"></span></p>                       
+                    </div>
+                  
+                </div>
+            </div>
+          
+        </div>
+    </div>
+    
+
+      <script>
+      /*
+      * Copyright (c) 2020 - Daniel Alexandre
+      * This work is licensed under a Creative Commons Attribution 4.0 International License.
+      * To view a copy of this license, visit https://creativecommons.org/licenses/by/4.0/legalcode.
+      */
+        getLocation();
+
+        function getLocation() {
+          if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(showPosition);
+          } else { 
+            x.innerHTML = "Geolocation is not supported by this browser.";
+          }
+        }
+
+        var latitude;
+        var longitude;
+        var altitude;
+
+        function showPosition(position) {
+            document.getElementById('lat').innerHTML = position.coords.latitude;
+            document.getElementById('lon').innerHTML = position.coords.longitude;
+            document.getElementById('alt').innerHTML = position.coords.altitude;
+
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+            
+            altitude = 31415; //altitude = position.coords.altitude;
+            
+            showXYZAndCubeCode();
+        }
+        
+        function showXYZAndCubeCode() {
+            
+            var RADIUS = 6378137
+            var FLATTENING_DENOM = 298.257223563
+
+            function FLATTENING() {
+                return 1 / FLATTENING_DENOM
+            }
+
+            function POLAR_RADIUS() {
+                return RADIUS * (1 - FLATTENING())
+            }
+
+            function RADIUS_SQRT() {
+                return RADIUS * RADIUS
+            }
+
+            function POLAR_RADIUS_SQRT() {
+                return POLAR_RADIUS() * POLAR_RADIUS()
+            }
+
+            function ECCENTRICITY2() {
+                return (2 - FLATTENING()) * FLATTENING()
+            }
+
+            function ECCENTRICITY() {
+                return Math.sqrt((RADIUS_SQRT() - POLAR_RADIUS_SQRT()) / RADIUS_SQRT())
+            }
+
+            function ECCENTRICITY_PRIME() {
+                return Math.sqrt((RADIUS_SQRT() - POLAR_RADIUS_SQRT()) / POLAR_RADIUS_SQRT())
+            }
+
+            function LLAToECEF(lat, lon, alt=0) {
+                var rlat = lat / 180 * Math.PI
+                var rlon = lon / 180 * Math.PI
+
+                var slat = Math.sin(rlat)
+                var clat = Math.cos(rlat)
+
+                var N = RADIUS / Math.sqrt(1 - ECCENTRICITY2() * slat * slat)
+
+                var x = (N + alt) * clat * Math.cos(rlon)
+                var y = (N + alt) * clat * Math.sin(rlon)
+                var z = (N * (1 - ECCENTRICITY2()) + alt) * slat
+
+                return [x, y, z]
+
+            }
+
+            var res = LLAToECEF(latitude, longitude, altitude);
+
+            document.getElementById('x').innerHTML = res[0];
+            document.getElementById('y').innerHTML = res[1];
+            document.getElementById('z').innerHTML = res[2];
+
+            
+            function coord_round(x) {
+                if (x >= 0)
+                    return parseInt(x)
+                else
+                    return parseInt(x) - 1
+            }
+
+            var my_x = coord_round(res[0]);
+            var my_y = coord_round(res[1]);
+            var my_z = coord_round(res[2]);
+         
+            function max(v1, v2, v3) {
+                let m = v1;
+                if (v2 > m)
+                    m = v2;
+                if (v3 > m)
+                    m = v3;
+                return m;
+            }
+
+            var square_number = max(my_y + 1, my_z + 1, -my_y, -my_z);
+
+            var left_top = (2 * (square_number - 1)) ** 2 + 1;
+            var right_top = left_top + 2 * square_number - 1;
+            var right_bottom = right_top + 2 * square_number - 1;
+            var left_bottom = right_bottom + 2 * square_number - 1;
+
+            if (square_number == - my_y) {
+                if (square_number == my_z + 1)
+                    cube_p = left_top;
+                else
+                    cube_p = my_z + left_bottom + square_number;
+            }
+            else if (square_number == my_y + 1)
+                cube_p = right_top + square_number - 1 - my_z;
+            else if (square_number == my_z + 1)
+                cube_p = right_top - square_number - my_y;
+            else
+                cube_p = right_bottom + square_number - my_y;
+
+
+            if (my_x >= 0)
+                var slice_number = my_x * 2;
+            else
+                var slice_number = -my_x * 2 - 1;
+
+            // FIXED: Use BigInt for exact 22-digit display
+            var code = BigInt(Math.floor(slice_number)) * BigInt(441000000000000) + BigInt(cube_p);
+            var codeStr = code.toString();
+
+            // Pad to exactly 22 digits
+            while (codeStr.length < 22) {
+                codeStr = "0" + codeStr;
+            }
+            if (codeStr.length > 22) {
+                codeStr = codeStr.substring(0, 22);
+            }
+
+            document.getElementById('cube-code').innerHTML = codeStr;
+           
+        }
+    </script>  
+  </body>
+</html>
