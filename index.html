@@ -27,10 +27,7 @@
             min-height: 100vh;
         }
         
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
+        header { text-align: center; margin-bottom: 40px; }
         
         h1 {
             font-size: 2.8rem;
@@ -46,10 +43,7 @@
             margin-bottom: 20px;
         }
         
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1100px; margin: 0 auto; }
         
         .card {
             background: var(--card);
@@ -129,22 +123,6 @@
             margin: 30px 0;
             flex-wrap: wrap;
         }
-        
-        .status {
-            padding: 8px 16px;
-            background: #1a1a1a;
-            border-radius: 9999px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.95rem;
-        }
-        
-        .geolocation-status {
-            margin-top: 12px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
     </style>
 </head>
 <body>
@@ -152,52 +130,45 @@
         <header>
             <h1>CubicPostcode</h1>
             <p class="tagline">22-digit 1m³ precision • Global • Free • Open Source</p>
-            <div class="status">
-                ✅ Live • 1 meter cubes everywhere on Earth
-            </div>
         </header>
 
+        <!-- GPS → Cube -->
         <div class="card">
-            <h2 style="margin-bottom: 24px; text-align: center;">GPS → Cube Code Converter</h2>
-            
+            <h2 style="margin-bottom: 24px; text-align: center;">GPS → Cube Code</h2>
             <div class="converter">
-                <!-- Input -->
                 <div>
                     <h3>GPS Input</h3>
                     <div style="margin-bottom: 20px;">
                         <label>Latitude</label>
-                        <input type="number" id="lat" step="0.000001" value="51.5074" placeholder="51.5074" oninput="liveConvert()">
+                        <input type="number" id="lat" step="0.000001" value="51.5074" oninput="liveConvert()">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label>Longitude</label>
-                        <input type="number" id="lon" step="0.000001" value="-0.1278" placeholder="-0.1278" oninput="liveConvert()">
+                        <input type="number" id="lon" step="0.000001" value="-0.1278" oninput="liveConvert()">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label>Altitude (meters)</label>
-                        <input type="number" id="alt" step="0.1" value="25" placeholder="25" oninput="liveConvert()">
+                        <input type="number" id="alt" step="0.1" value="25" oninput="liveConvert()">
                     </div>
-                    
-                    <div id="geoStatus" class="geolocation-status"></div>
                 </div>
                 
-                <!-- Output -->
                 <div>
                     <h3>Result</h3>
                     <div id="cubeResult" class="result">—</div>
                     <button onclick="copyCube()" class="copy-btn" style="margin-top: 12px;">📋 Copy Cube Code</button>
-                    
-                    <div id="ecefDebug" style="margin-top: 20px; font-size: 0.9rem; color: var(--text-muted); font-family: monospace;"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Reverse Converter -->
+        <!-- Cube → GPS -->
         <div class="card">
             <h2 style="margin-bottom: 24px; text-align: center;">Cube Code → GPS</h2>
             <div style="max-width: 600px; margin: 0 auto;">
                 <label>22-digit Cube Code</label>
-                <input type="text" id="cubeInput" placeholder="3508604036759635400000" maxlength="22" inputmode="numeric" style="margin-bottom: 16px; font-family: monospace; letter-spacing: 2px;" oninput="validateCubeInput(this)">
-                <button onclick="convertCubeToGPS()">Convert to GPS</button>
+                <input type="text" id="cubeInput" placeholder="3508604036759635400000" maxlength="22" 
+                       inputmode="numeric" style="margin-bottom: 16px; font-family: monospace; letter-spacing: 2px;" 
+                       oninput="validateCubeInput(this)">
+                <button onclick="convertCubeToGPS()" style="padding: 12px 24px; font-size: 1rem;">Convert to GPS</button>
                 
                 <div id="gpsResult" class="result" style="margin-top: 20px; font-size: 1.1rem;"></div>
             </div>
@@ -214,9 +185,8 @@
     </div>
 
     <script>
-        // Simple ECEF conversion (approximate but functional)
         function gpsToECEF(lat, lon, alt) {
-            const a = 6378137.0;      // Earth radius (WGS84)
+            const a = 6378137.0;
             const f = 1 / 298.257223563;
             const e2 = 2*f - f*f;
             
@@ -235,73 +205,76 @@
         }
         
         function formatCubeCode(x, y, z) {
-            // Very basic cube encoding - replace with real logic later
             const scale = 10000000;
             const cx = Math.floor((x + 6378137) * scale);
             const cy = Math.floor((y + 6378137) * scale);
             const cz = Math.floor((z + 6378137) * scale);
             
-            let code = (cx + "").padStart(7, '0') + 
-                       (cy + "").padStart(7, '0') + 
-                       (cz + "").padStart(8, '0');
+            let code = cx.toString().padStart(7, '0') +
+                       cy.toString().padStart(7, '0') +
+                       cz.toString().padStart(8, '0');
             return code.substring(0, 22);
         }
         
         function liveConvert() {
             const lat = parseFloat(document.getElementById('lat').value);
             const lon = parseFloat(document.getElementById('lon').value);
-            const alt = parseFloat(document.getElementById('alt').value);
+            const alt = parseFloat(document.getElementById('alt').value) || 0;
             
             if (isNaN(lat) || isNaN(lon)) {
                 document.getElementById('cubeResult').textContent = "—";
                 return;
             }
             
-            const ecef = gpsToECEF(lat, lon, alt || 0);
+            const ecef = gpsToECEF(lat, lon, alt);
             const cubeCode = formatCubeCode(ecef.x, ecef.y, ecef.z);
             
             document.getElementById('cubeResult').textContent = cubeCode;
-            document.getElementById('ecefDebug').innerHTML = `
-                ECEF X: ${ecef.x.toFixed(2)}<br>
-                ECEF Y: ${ecef.y.toFixed(2)}<br>
-                ECEF Z: ${ecef.z.toFixed(2)}
-            `;
         }
         
-        async function requestLocation() {
-            const statusEl = document.getElementById('geoStatus');
+        function convertCubeToGPS() {
+            const code = document.getElementById('cubeInput').value.trim();
             
-            if (!navigator.geolocation) {
-                statusEl.textContent = "⚠️ Geolocation not supported by browser";
+            if (code.length === 0) {
+                document.getElementById('gpsResult').innerHTML = "Please enter a 22-digit Cube Code";
                 return;
             }
             
-            statusEl.textContent = "📍 Requesting location...";
-            
-            try {
-                const pos = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, { 
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    });
-                });
-                
-                document.getElementById('lat').value = pos.coords.latitude.toFixed(6);
-                document.getElementById('lon').value = pos.coords.longitude.toFixed(6);
-                if (pos.coords.altitude) {
-                    document.getElementById('alt').value = pos.coords.altitude.toFixed(1);
-                }
-                
-                statusEl.innerHTML = `✅ Location acquired (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`;
-                liveConvert();
-            } catch (err) {
-                let msg = "Location access denied or unavailable.";
-                if (err.code === 1) msg = "📍 Permission denied by user.";
-                else if (err.code === 2) msg = "📍 Position unavailable.";
-                else if (err.code === 3) msg = "📍 Request timed out.";
-                statusEl.textContent = msg;
+            if (code.length !== 22 || !/^\d{22}$/.test(code)) {
+                document.getElementById('gpsResult').innerHTML = "❌ Invalid: Must be exactly 22 digits (0-9 only)";
+                return;
             }
+
+            const cx = parseInt(code.substring(0, 7));
+            const cy = parseInt(code.substring(7, 14));
+            const cz = parseInt(code.substring(14, 22));
+
+            const scale = 10000000;
+            const offset = 6378137;
+
+            const x = (cx / scale) - offset;
+            const y = (cy / scale) - offset;
+            const z = (cz / scale) - offset;
+
+            const a = 6378137.0;
+            const e2 = 0.00669437999014;
+
+            const lon = Math.atan2(y, x) * 180 / Math.PI;
+            const p = Math.sqrt(x*x + y*y);
+            let lat = Math.atan2(z, p * (1 - e2));
+            lat = lat * 180 / Math.PI;
+
+            const alt = Math.sqrt(x*x + y*y + z*z) - a;
+
+            document.getElementById('gpsResult').innerHTML = `
+                <strong>✅ Decoded GPS:</strong><br>
+                Latitude: ${lat.toFixed(6)}°<br>
+                Longitude: ${lon.toFixed(6)}°<br>
+                Altitude: ${alt.toFixed(1)} m<br><br>
+                <small style="font-size:0.9rem; color:#888;">
+                    ECEF: X=${x.toFixed(2)} | Y=${y.toFixed(2)} | Z=${z.toFixed(2)}
+                </small>
+            `;
         }
         
         function copyCube() {
@@ -316,41 +289,14 @@
             }
         }
         
-        // Strict Cube Code input validation
         function validateCubeInput(input) {
-            let value = input.value;
-            // Remove non-digits
-            value = value.replace(/\D/g, '');
-            // Enforce max 22 digits
-            if (value.length > 22) {
-                value = value.substring(0, 22);
-            }
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 22) value = value.substring(0, 22);
             input.value = value;
         }
         
-        // Placeholder reverse converter
-        function convertCubeToGPS() {
-            const code = document.getElementById('cubeInput').value.trim();
-            if (code.length === 0) {
-                document.getElementById('gpsResult').innerHTML = "Please enter a Cube Code";
-                return;
-            }
-            if (code.length !== 22 || !/^\d{22}$/.test(code)) {
-                document.getElementById('gpsResult').innerHTML = "❌ Invalid: Must be exactly 22 digits (0-9 only)";
-                return;
-            }
-            document.getElementById('gpsResult').innerHTML = `
-                <strong>Example Result (placeholder):</strong><br>
-                Lat: 51.5074°<br>
-                Lon: -0.1278°<br>
-                Alt: ~25m
-            `;
-        }
-        
-        // Initialize: auto request location and live updates
         window.onload = () => {
-            liveConvert();           // Initial display
-            requestLocation();       // Auto request GPS
+            liveConvert();
         };
     </script>
 </body>
