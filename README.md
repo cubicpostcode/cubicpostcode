@@ -9,7 +9,7 @@ More professional, free, and collaborative than what3words.
 - Cross-platform apps
 - Fully open source
 
-Live site: https://cubicpostcode.github.io/cubicpostcode/
+Live site: https://cubicpostcode.com
 
 Legacy website: https://cubicpostcode.github.io/website.html
 
