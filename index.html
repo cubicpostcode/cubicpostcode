@@ -93,24 +93,6 @@
             box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
         }
         
-        button {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-        
-        button:hover {
-            background: #ffffff;
-            transform: translateY(-2px);
-        }
-        
         .result {
             margin-top: 24px;
             padding: 20px;
@@ -128,6 +110,9 @@
             color: white;
             padding: 8px 16px;
             font-size: 0.95rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
         }
         
         .footer {
@@ -154,6 +139,12 @@
             gap: 8px;
             font-size: 0.95rem;
         }
+        
+        .geolocation-status {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
     </style>
 </head>
 <body>
@@ -175,19 +166,18 @@
                     <h3>GPS Input</h3>
                     <div style="margin-bottom: 20px;">
                         <label>Latitude</label>
-                        <input type="number" id="lat" step="0.000001" value="51.5074" placeholder="51.5074">
+                        <input type="number" id="lat" step="0.000001" value="51.5074" placeholder="51.5074" oninput="liveConvert()">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label>Longitude</label>
-                        <input type="number" id="lon" step="0.000001" value="-0.1278" placeholder="-0.1278">
+                        <input type="number" id="lon" step="0.000001" value="-0.1278" placeholder="-0.1278" oninput="liveConvert()">
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label>Altitude (meters)</label>
-                        <input type="number" id="alt" step="0.1" value="25" placeholder="25">
+                        <input type="number" id="alt" step="0.1" value="25" placeholder="25" oninput="liveConvert()">
                     </div>
                     
-                    <button onclick="convertGPStoCube()">Convert to Cube Code</button>
-                    <button onclick="getCurrentLocation()" style="background:#444; margin-left: 12px;">📍 Use My Location</button>
+                    <div id="geoStatus" class="geolocation-status"></div>
                 </div>
                 
                 <!-- Output -->
@@ -257,17 +247,17 @@
             return code.substring(0, 22);
         }
         
-        function convertGPStoCube() {
+        function liveConvert() {
             const lat = parseFloat(document.getElementById('lat').value);
             const lon = parseFloat(document.getElementById('lon').value);
             const alt = parseFloat(document.getElementById('alt').value);
             
             if (isNaN(lat) || isNaN(lon)) {
-                alert("Please enter valid coordinates");
+                document.getElementById('cubeResult').textContent = "—";
                 return;
             }
             
-            const ecef = gpsToECEF(lat, lon, alt);
+            const ecef = gpsToECEF(lat, lon, alt || 0);
             const cubeCode = formatCubeCode(ecef.x, ecef.y, ecef.z);
             
             document.getElementById('cubeResult').textContent = cubeCode;
@@ -278,24 +268,39 @@
             `;
         }
         
-        async function getCurrentLocation() {
+        async function requestLocation() {
+            const statusEl = document.getElementById('geoStatus');
+            
             if (!navigator.geolocation) {
-                alert("Geolocation not supported");
+                statusEl.textContent = "⚠️ Geolocation not supported by browser";
                 return;
             }
             
+            statusEl.textContent = "📍 Requesting location...";
+            
             try {
                 const pos = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, {enableHighAccuracy: true});
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { 
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    });
                 });
                 
                 document.getElementById('lat').value = pos.coords.latitude.toFixed(6);
                 document.getElementById('lon').value = pos.coords.longitude.toFixed(6);
-                document.getElementById('alt').value = (pos.coords.altitude || 0).toFixed(1);
+                if (pos.coords.altitude) {
+                    document.getElementById('alt').value = pos.coords.altitude.toFixed(1);
+                }
                 
-                convertGPStoCube();
+                statusEl.innerHTML = `✅ Location acquired (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`;
+                liveConvert();
             } catch (err) {
-                alert("Could not get location: " + err.message);
+                let msg = "Location access denied or unavailable.";
+                if (err.code === 1) msg = "📍 Permission denied by user.";
+                else if (err.code === 2) msg = "📍 Position unavailable.";
+                else if (err.code === 3) msg = "📍 Request timed out.";
+                statusEl.textContent = msg;
             }
         }
         
@@ -326,9 +331,10 @@
             `;
         }
         
-        // Auto convert on load
+        // Initialize: auto request location and live updates
         window.onload = () => {
-            convertGPStoCube();
+            liveConvert();           // Initial display
+            requestLocation();       // Auto request GPS
         };
     </script>
 </body>
