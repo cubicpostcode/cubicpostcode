@@ -3,54 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CubicPostcode - Universal 22-Digit 3D Grid</title>
+    <title>CubicPostcode - Universal 3D Addressing</title>
     <style>
-        body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 40px auto; padding: 20px; }
-        h1, h2 { color: #0d6efd; }
-        pre { background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; }
-        .calc { background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px solid #dee2e6; }
-        button { background: #0d6efd; color: white; padding: 12px 28px; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; }
-        input { padding: 10px; width: 220px; margin: 5px 0; }
-        #copyBtn {
-            margin-left: 12px;
-            padding: 10px 16px;
-            background: #0d6efd;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1em;
-            vertical-align: middle;
-            min-width: 110px;
-        }
-        #copyBtn:hover {
-            background: #0b5ed7;
-        }
-        #result {
-            font-family: monospace;
-            font-size: 1.45em;
-            color: #0d6efd;
-            letter-spacing: 3px;
-            font-weight: bold;
-        }
+        body { font-family: system-ui, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #0f172a, #1e2937); color: #e2e8f0; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { color: #60a5fa; }
+        .converter { background: #1e2937; padding: 25px; border-radius: 12px; margin: 20px 0; }
+        input, button { padding: 12px; margin: 8px 0; border-radius: 8px; border: none; }
+        input { width: 100%; background: #334155; color: white; }
+        button { background: #3b82f6; color: white; font-weight: bold; cursor: pointer; }
+        #result { font-family: monospace; font-size: 1.5em; letter-spacing: 3px; background: #1e2937; padding: 12px; border-radius: 8px; display: inline-block; }
+        .copy-btn { margin-left: 15px; padding: 12px 20px; font-size: 1.1em; }
+        .info { background: #1e2937; padding: 20px; border-radius: 12px; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <h1>🌍 CubicPostcode</h1>
-    <p><strong>Fool-proof 22-digit universal cubic meter addressing system</strong></p>
+    <div class="container">
+        <h1>🌍 CubicPostcode</h1>
+        <p><strong>Fool-proof 22-digit universal cubic meter addressing system</strong></p>
+        
+        <div class="converter">
+            <h2>Live GPS → Cube Converter</h2>
+            
+            <label>Latitude:</label>
+            <input type="text" id="lat" value="51.5074" placeholder="e.g. 51.5074">
+            
+            <label>Longitude:</label>
+            <input type="text" id="lon" value="-0.1278" placeholder="e.g. -0.1278">
+            
+            <label>Altitude (meters):</label>
+            <input type="text" id="alt" value="25" placeholder="e.g. 25">
+            
+            <button onclick="computeCubeCode()">Compute 22-Digit Code</button>
+            
+            <p><strong>Cube Code:</strong><br>
+                <span id="result"></span>
+                <button id="copyBtn" class="copy-btn" onclick="copyToClipboard()">📋 Copy</button>
+            </p>
+            
+            <div id="debug" style="margin-top:15px; font-size:0.9em; color:#94a3b8;"></div>
+        </div>
 
-    <div class="calc">
-        <h2>Live GPS → Cube Converter</h2>
-        <label>Latitude (°): <input id="lat" type="number" value="51.5074" step="any"></label><br>
-        <label>Longitude (°): <input id="lon" type="number" value="-0.1278" step="any"></label><br>
-        <label>Altitude (m): <input id="alt" type="number" value="30" step="any"></label><br><br>
-        <button onclick="computeCubeCode()">Compute 22-Digit Code</button>
-        <hr>
-        <p><strong>Cube Code:</strong> 
-            <span id="result"></span>
-            <button id="copyBtn" onclick="copyToClipboard()" style="display: none;">📋 Copy</button>
-        </p>
-        <p id="debug"></p>
+        <div class="info">
+            <h2>Why CubicPostcode?</h2>
+            <ul>
+                <li>1m³ precision — truly universal 3D addressing</li>
+                <li>Free & open source alternative to proprietary systems</li>
+                <li>Works offline — no internet required</li>
+                <li>Designed for accessibility, emergency services, logistics & social impact</li>
+                <li>Helping break the poverty trap with better location intelligence</li>
+            </ul>
+        </div>
+
+        <p><a href="https://github.com/cubicpostcode/cubicpostcode" style="color:#60a5fa;">View on GitHub →</a></p>
     </div>
 
     <script>
@@ -69,15 +74,13 @@
             const lat = parseFloat(document.getElementById('lat').value);
             const lon = parseFloat(document.getElementById('lon').value);
             const alt = parseFloat(document.getElementById('alt').value);
-            const ecef = gpsToEcef(lat, lon, alt);
             
-            // Placeholder - will be replaced with full fool-proof logic
-            const code = "7636535637373773383976";
+            const ecef = gpsToEcef(lat, lon, alt);
+            // Placeholder - will connect real algorithm soon
+            const code = "7636535637373773383976"; 
+            
             document.getElementById('result').textContent = code;
             document.getElementById('debug').innerHTML = `ECEF ≈ ${ecef.X}, ${ecef.Y}, ${ecef.Z} m`;
-            
-            // Show copy button
-            document.getElementById('copyBtn').style.display = 'inline-block';
         }
 
         function copyToClipboard() {
@@ -86,28 +89,15 @@
             
             navigator.clipboard.writeText(code).then(() => {
                 const btn = document.getElementById('copyBtn');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '✅ Copied!';
-                btn.style.background = '#28a745';
-                
+                const orig = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#22c55e';
                 setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.background = '#0d6efd';
+                    btn.textContent = orig;
+                    btn.style.background = '#3b82f6';
                 }, 2000);
-            }).catch(err => {
-                alert('Failed to copy: ' + err);
             });
         }
     </script>
-
-    <h2>Repository Contents</h2>
-    <ul>
-        <li><a href="xyz2cube.py">xyz2cube.py</a> — Fool-proof XYZ → Cube</li>
-        <li><a href="gps_ecef.py">gps_ecef.py</a> — GPS conversions</li>
-        <li><a href="js/cubicpostcode.js">JS Library</a></li>
-        <li><a href="tests/test_cube.py">Unit Tests</a></li>
-    </ul>
-
-    <p>Full pseudocode, reasoning and Python in README.md.</p>
 </body>
 </html>
