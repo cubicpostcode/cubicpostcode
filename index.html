@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CubicPostcode • Live GPS Tracker</title>
-    <meta name="description" content="Free open-source 3D universal addressing system. Convert GPS ↔ Cube Code with 1 meter precision.">
+    <meta name="description" content="Explore the open-source Cubic Postcode 3D addressing prototype, including coordinate conversion, maps and live GPS tracking.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -33,6 +33,7 @@
             -webkit-text-fill-color: transparent;
         }
         .container { max-width: 1200px; margin: 0 auto; }
+        .tagline { margin-top: 4px; color: #a8bfc5; font-size: 0.95rem; }
         .card {
             background: var(--card);
             border-radius: 16px;
@@ -141,14 +142,14 @@
         @media (prefers-reduced-motion: reduce) {
             .links a { transition: none; }
         }
-        .footer { text-align: center; margin-top: 40px; color: var(--text-muted); font-size: 0.9rem; }
+        .footer { text-align: center; margin-top: 40px; color: #8faeb5; font-size: 0.85rem; letter-spacing: 0.01em; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>#CubicPostcode</h1>
-            <p class="tagline">Real-time 22-digit 1m³ Cube Code • GPS Tracking</p>
+            <p class="tagline">22-digit 3D addressing · Live GPS tracking</p>
         </header>
 
         <div class="card">
@@ -158,18 +159,18 @@
                     <h3>GPS Input</h3>
                     <div style="margin-bottom: 16px;">
                         <label>Latitude</label>
-                        <input type="number" id="lat" step="0.000001" oninput="liveConvert()">
+                        <input type="number" id="lat" step="0.000001" oninput="markManualCoordinates()">
                     </div>
                     <div style="margin-bottom: 16px;">
                         <label>Longitude</label>
-                        <input type="number" id="lon" step="0.000001" oninput="liveConvert()">
+                        <input type="number" id="lon" step="0.000001" oninput="markManualCoordinates()">
                     </div>
                     <div style="margin-bottom: 16px;">
                         <label>Altitude (m)</label>
-                        <input type="number" id="alt" step="0.1" oninput="liveConvert()">
+                        <input type="number" id="alt" step="0.1" oninput="markManualCoordinates()">
                     </div>
 
-                    <button onclick="getCurrentGPS()" class="gps-btn">📍 One-time</button>
+                    <button onclick="getCurrentGPS()" class="gps-btn">📍 Get current location</button>
                     <button onclick="toggleLiveTracking()" id="liveBtn" class="live-btn">🔴 Start Live Tracking</button>
                     <label style="display:inline-block; margin-left:10px;">
                         <input type="checkbox" id="autoCopy" checked> Auto-copy on update
@@ -220,7 +221,7 @@
         </nav>
             
         <div class="footer">
-            <p>Every 1m³ on Earth has a unique 22-digit code • Open Source</p>
+            <p>Open-source tools for 3D addressing</p>
         </div>
     </div>
 
@@ -274,6 +275,11 @@
             addToHistory(lat, lon, cubeCode);
         }
 
+        function markManualCoordinates() {
+            liveConvert();
+            document.getElementById('gpsStatus').textContent = "Manual coordinates.";
+        }
+
         function addToHistory(lat, lon, code) {
             const time = new Date().toLocaleTimeString();
             history.unshift({time, lat, lon, code});
@@ -315,7 +321,7 @@
             polyline.setLatLngs(pathPoints);
         }
 
-        function updateLocation(position) {
+        function updateLocation(position, isLive = false) {
             const { latitude, longitude, altitude } = position.coords;
             
             document.getElementById('lat').value = latitude.toFixed(6);
@@ -325,8 +331,8 @@
             liveConvert();
             updateMap(latitude, longitude);
 
-            document.getElementById('gpsStatus').innerHTML = 
-                `✅ <strong>LIVE TRACKING</strong> • ${latitude.toFixed(5)}°, ${longitude.toFixed(5)}°`;
+            document.getElementById('gpsStatus').textContent =
+                `${isLive ? "● Live tracking" : "✓ Device location"} · ${latitude.toFixed(5)}°, ${longitude.toFixed(5)}°`;
         }
 
         function toggleLiveTracking() {
@@ -341,7 +347,7 @@
             }
 
             watchId = navigator.geolocation.watchPosition(
-                updateLocation,
+                (position) => updateLocation(position, true),
                 (e) => document.getElementById('gpsStatus').textContent = "❌ Location error",
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
             );
@@ -351,7 +357,11 @@
         }
 
         function getCurrentGPS() {
-            navigator.geolocation.getCurrentPosition(updateLocation, () => {}, { enableHighAccuracy: true });
+            navigator.geolocation.getCurrentPosition(
+                (position) => updateLocation(position, false),
+                () => { document.getElementById('gpsStatus').textContent = "Unable to access your location."; },
+                { enableHighAccuracy: true }
+            );
         }
 
         // Original Cube → GPS function
@@ -404,6 +414,8 @@
             document.getElementById('lat').value = "51.5074";
             document.getElementById('lon').value = "-0.1278";
             liveConvert();
+            document.getElementById('gpsStatus').textContent =
+                "Example coordinates: London. Edit them or choose Get current location.";
         };
     </script>
 </body>
