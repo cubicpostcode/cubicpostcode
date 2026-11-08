@@ -1,0 +1,1708 @@
+{
+ "meta": {
+  "title": "Cubic Postcode conformance vectors",
+  "status": "draft",
+  "spec": "docs/SPEC.md",
+  "constants": {
+   "SIDE": 21000000,
+   "HALF": 10500000,
+   "LAYER_SIZE": 441000000000000,
+   "MAX_CODE": "9261000000000000000000"
+  },
+  "codes": "strings of exactly 22 digits with leading zeros",
+  "candidates": {
+   "A": "top row right_top - n + 1 + y, bottom row right_bottom + n - 1 - y (published diagram and decoders)",
+   "B": "top row right_top - n - y, bottom row right_bottom + n - 1 - y (encoder top row with the diagram bottom row)",
+   "L": "top row right_top - n - y, bottom row right_bottom + n - y (published encoders as written; not injective)"
+  },
+  "warning": "Groups named unresolved_* depend on decisions D1-D5 in docs/SPEC.md. They record every candidate and choose none."
+ },
+ "settled": [
+  {
+   "cell": [0, -1, 0],
+   "code": "0000000000000000000001",
+   "why": "square 1, top-left corner, layer of x = 0; published diagram cube 1; bug-bounty example 1 expects 1; cube 1: first layer, north and west of the centre (website.html prose)"
+  },
+  {
+   "cell": [0, 0, 0],
+   "code": "0000000000000000000002",
+   "why": "square 1, top-right corner, layer of x = 0; published diagram cube 2; cube 2: the cube to the right of cube 1, seen from Greenwich"
+  },
+  {
+   "cell": [0, 0, -1],
+   "code": "0000000000000000000003",
+   "why": "square 1, bottom-right corner, layer of x = 0; published diagram cube 3"
+  },
+  {
+   "cell": [0, -1, -1],
+   "code": "0000000000000000000004",
+   "why": "square 1, bottom-left corner, layer of x = 0; published diagram cube 4"
+  },
+  {
+   "cell": [-1, -1, 0],
+   "code": "0000000441000000000001",
+   "why": "square 1, top-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 0, 0],
+   "code": "0000000441000000000002",
+   "why": "square 1, top-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 0, -1],
+   "code": "0000000441000000000003",
+   "why": "square 1, bottom-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, -1, -1],
+   "code": "0000000441000000000004",
+   "why": "square 1, bottom-left corner, layer of x = -1; second layer, all coordinates negative"
+  },
+  {
+   "cell": [1, -1, 0],
+   "code": "0000000882000000000001",
+   "why": "square 1, top-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 0, 0],
+   "code": "0000000882000000000002",
+   "why": "square 1, top-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 0, -1],
+   "code": "0000000882000000000003",
+   "why": "square 1, bottom-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, -1, -1],
+   "code": "0000000882000000000004",
+   "why": "square 1, bottom-left corner, layer of x = 1"
+  },
+  {
+   "cell": [10499999, -1, 0],
+   "code": "9260999118000000000001",
+   "why": "square 1, top-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 0, 0],
+   "code": "9260999118000000000002",
+   "why": "square 1, top-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 0, -1],
+   "code": "9260999118000000000003",
+   "why": "square 1, bottom-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -1, -1],
+   "code": "9260999118000000000004",
+   "why": "square 1, bottom-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [-10500000, -1, 0],
+   "code": "9260999559000000000001",
+   "why": "square 1, top-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 0, 0],
+   "code": "9260999559000000000002",
+   "why": "square 1, top-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 0, -1],
+   "code": "9260999559000000000003",
+   "why": "square 1, bottom-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -1, -1],
+   "code": "9260999559000000000004",
+   "why": "square 1, bottom-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [0, -2, 1],
+   "code": "0000000000000000000005",
+   "why": "square 2, top-left corner, layer of x = 0; published diagram cube 5"
+  },
+  {
+   "cell": [0, 1, 1],
+   "code": "0000000000000000000008",
+   "why": "square 2, top-right corner, layer of x = 0; published diagram cube 8; bug-bounty example 5 expects 8"
+  },
+  {
+   "cell": [0, 1, -2],
+   "code": "0000000000000000000011",
+   "why": "square 2, bottom-right corner, layer of x = 0; published diagram cube 11"
+  },
+  {
+   "cell": [0, -2, -2],
+   "code": "0000000000000000000014",
+   "why": "square 2, bottom-left corner, layer of x = 0; published diagram cube 14"
+  },
+  {
+   "cell": [0, 1, 0],
+   "code": "0000000000000000000009",
+   "why": "square 2, right side, layer of x = 0; published diagram cube 9; right side of square 2"
+  },
+  {
+   "cell": [0, -2, 0],
+   "code": "0000000000000000000016",
+   "why": "square 2, left side, layer of x = 0; published diagram cube 16; bug-bounty example 4 expects 16; left side of square 2"
+  },
+  {
+   "cell": [-1, -2, 1],
+   "code": "0000000441000000000005",
+   "why": "square 2, top-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 1, 1],
+   "code": "0000000441000000000008",
+   "why": "square 2, top-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 1, -2],
+   "code": "0000000441000000000011",
+   "why": "square 2, bottom-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, -2, -2],
+   "code": "0000000441000000000014",
+   "why": "square 2, bottom-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 1, 0],
+   "code": "0000000441000000000009",
+   "why": "square 2, right side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -2, 0],
+   "code": "0000000441000000000016",
+   "why": "square 2, left side, layer of x = -1"
+  },
+  {
+   "cell": [1, -2, 1],
+   "code": "0000000882000000000005",
+   "why": "square 2, top-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 1, 1],
+   "code": "0000000882000000000008",
+   "why": "square 2, top-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 1, -2],
+   "code": "0000000882000000000011",
+   "why": "square 2, bottom-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, -2, -2],
+   "code": "0000000882000000000014",
+   "why": "square 2, bottom-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 1, 0],
+   "code": "0000000882000000000009",
+   "why": "square 2, right side, layer of x = 1"
+  },
+  {
+   "cell": [1, -2, 0],
+   "code": "0000000882000000000016",
+   "why": "square 2, left side, layer of x = 1"
+  },
+  {
+   "cell": [10499999, -2, 1],
+   "code": "9260999118000000000005",
+   "why": "square 2, top-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 1, 1],
+   "code": "9260999118000000000008",
+   "why": "square 2, top-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 1, -2],
+   "code": "9260999118000000000011",
+   "why": "square 2, bottom-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -2, -2],
+   "code": "9260999118000000000014",
+   "why": "square 2, bottom-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 1, 0],
+   "code": "9260999118000000000009",
+   "why": "square 2, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -2, 0],
+   "code": "9260999118000000000016",
+   "why": "square 2, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [-10500000, -2, 1],
+   "code": "9260999559000000000005",
+   "why": "square 2, top-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 1, 1],
+   "code": "9260999559000000000008",
+   "why": "square 2, top-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 1, -2],
+   "code": "9260999559000000000011",
+   "why": "square 2, bottom-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -2, -2],
+   "code": "9260999559000000000014",
+   "why": "square 2, bottom-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 1, 0],
+   "code": "9260999559000000000009",
+   "why": "square 2, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -2, 0],
+   "code": "9260999559000000000016",
+   "why": "square 2, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [0, -3, 2],
+   "code": "0000000000000000000017",
+   "why": "square 3, top-left corner, layer of x = 0; published diagram cube 17"
+  },
+  {
+   "cell": [0, 2, 2],
+   "code": "0000000000000000000022",
+   "why": "square 3, top-right corner, layer of x = 0; published diagram cube 22; bug-bounty example 6 expects 22"
+  },
+  {
+   "cell": [0, 2, -3],
+   "code": "0000000000000000000027",
+   "why": "square 3, bottom-right corner, layer of x = 0; published diagram cube 27"
+  },
+  {
+   "cell": [0, -3, -3],
+   "code": "0000000000000000000032",
+   "why": "square 3, bottom-left corner, layer of x = 0; published diagram cube 32"
+  },
+  {
+   "cell": [0, 2, 0],
+   "code": "0000000000000000000024",
+   "why": "square 3, right side, layer of x = 0; published diagram cube 24"
+  },
+  {
+   "cell": [0, -3, 0],
+   "code": "0000000000000000000035",
+   "why": "square 3, left side, layer of x = 0; published diagram cube 35; bug-bounty example 7 expects 35"
+  },
+  {
+   "cell": [0, -3, 1],
+   "code": "0000000000000000000036",
+   "why": "square 3, left side, layer of x = 0; published diagram cube 36; bug-bounty example 10 expects 36"
+  },
+  {
+   "cell": [0, 2, 1],
+   "code": "0000000000000000000023",
+   "why": "square 3, right side, layer of x = 0; published diagram cube 23; bug-bounty example 8 expects 23"
+  },
+  {
+   "cell": [-1, -3, 2],
+   "code": "0000000441000000000017",
+   "why": "square 3, top-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 2, 2],
+   "code": "0000000441000000000022",
+   "why": "square 3, top-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 2, -3],
+   "code": "0000000441000000000027",
+   "why": "square 3, bottom-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, -3, -3],
+   "code": "0000000441000000000032",
+   "why": "square 3, bottom-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 2, 0],
+   "code": "0000000441000000000024",
+   "why": "square 3, right side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -3, 0],
+   "code": "0000000441000000000035",
+   "why": "square 3, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -3, 1],
+   "code": "0000000441000000000036",
+   "why": "square 3, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, 2, 1],
+   "code": "0000000441000000000023",
+   "why": "square 3, right side, layer of x = -1"
+  },
+  {
+   "cell": [1, -3, 2],
+   "code": "0000000882000000000017",
+   "why": "square 3, top-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 2, 2],
+   "code": "0000000882000000000022",
+   "why": "square 3, top-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 2, -3],
+   "code": "0000000882000000000027",
+   "why": "square 3, bottom-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, -3, -3],
+   "code": "0000000882000000000032",
+   "why": "square 3, bottom-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 2, 0],
+   "code": "0000000882000000000024",
+   "why": "square 3, right side, layer of x = 1"
+  },
+  {
+   "cell": [1, -3, 0],
+   "code": "0000000882000000000035",
+   "why": "square 3, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, -3, 1],
+   "code": "0000000882000000000036",
+   "why": "square 3, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, 2, 1],
+   "code": "0000000882000000000023",
+   "why": "square 3, right side, layer of x = 1"
+  },
+  {
+   "cell": [10499999, -3, 2],
+   "code": "9260999118000000000017",
+   "why": "square 3, top-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 2, 2],
+   "code": "9260999118000000000022",
+   "why": "square 3, top-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 2, -3],
+   "code": "9260999118000000000027",
+   "why": "square 3, bottom-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -3, -3],
+   "code": "9260999118000000000032",
+   "why": "square 3, bottom-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 2, 0],
+   "code": "9260999118000000000024",
+   "why": "square 3, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -3, 0],
+   "code": "9260999118000000000035",
+   "why": "square 3, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -3, 1],
+   "code": "9260999118000000000036",
+   "why": "square 3, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 2, 1],
+   "code": "9260999118000000000023",
+   "why": "square 3, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [-10500000, -3, 2],
+   "code": "9260999559000000000017",
+   "why": "square 3, top-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 2, 2],
+   "code": "9260999559000000000022",
+   "why": "square 3, top-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 2, -3],
+   "code": "9260999559000000000027",
+   "why": "square 3, bottom-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -3, -3],
+   "code": "9260999559000000000032",
+   "why": "square 3, bottom-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 2, 0],
+   "code": "9260999559000000000024",
+   "why": "square 3, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -3, 0],
+   "code": "9260999559000000000035",
+   "why": "square 3, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -3, 1],
+   "code": "9260999559000000000036",
+   "why": "square 3, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 2, 1],
+   "code": "9260999559000000000023",
+   "why": "square 3, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [0, -4, 3],
+   "code": "0000000000000000000037",
+   "why": "square 4, top-left corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 3, 3],
+   "code": "0000000000000000000044",
+   "why": "square 4, top-right corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 3, -4],
+   "code": "0000000000000000000051",
+   "why": "square 4, bottom-right corner, layer of x = 0"
+  },
+  {
+   "cell": [0, -4, -4],
+   "code": "0000000000000000000058",
+   "why": "square 4, bottom-left corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 3, 0],
+   "code": "0000000000000000000047",
+   "why": "square 4, right side, layer of x = 0"
+  },
+  {
+   "cell": [0, -4, 0],
+   "code": "0000000000000000000062",
+   "why": "square 4, left side, layer of x = 0"
+  },
+  {
+   "cell": [0, -4, 2],
+   "code": "0000000000000000000064",
+   "why": "square 4, left side, layer of x = 0"
+  },
+  {
+   "cell": [0, 3, 2],
+   "code": "0000000000000000000045",
+   "why": "square 4, right side, layer of x = 0"
+  },
+  {
+   "cell": [-1, -4, 3],
+   "code": "0000000441000000000037",
+   "why": "square 4, top-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 3, 3],
+   "code": "0000000441000000000044",
+   "why": "square 4, top-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 3, -4],
+   "code": "0000000441000000000051",
+   "why": "square 4, bottom-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, -4, -4],
+   "code": "0000000441000000000058",
+   "why": "square 4, bottom-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 3, 0],
+   "code": "0000000441000000000047",
+   "why": "square 4, right side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -4, 0],
+   "code": "0000000441000000000062",
+   "why": "square 4, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -4, 2],
+   "code": "0000000441000000000064",
+   "why": "square 4, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, 3, 2],
+   "code": "0000000441000000000045",
+   "why": "square 4, right side, layer of x = -1"
+  },
+  {
+   "cell": [1, -4, 3],
+   "code": "0000000882000000000037",
+   "why": "square 4, top-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 3, 3],
+   "code": "0000000882000000000044",
+   "why": "square 4, top-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 3, -4],
+   "code": "0000000882000000000051",
+   "why": "square 4, bottom-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, -4, -4],
+   "code": "0000000882000000000058",
+   "why": "square 4, bottom-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 3, 0],
+   "code": "0000000882000000000047",
+   "why": "square 4, right side, layer of x = 1"
+  },
+  {
+   "cell": [1, -4, 0],
+   "code": "0000000882000000000062",
+   "why": "square 4, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, -4, 2],
+   "code": "0000000882000000000064",
+   "why": "square 4, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, 3, 2],
+   "code": "0000000882000000000045",
+   "why": "square 4, right side, layer of x = 1"
+  },
+  {
+   "cell": [10499999, -4, 3],
+   "code": "9260999118000000000037",
+   "why": "square 4, top-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 3, 3],
+   "code": "9260999118000000000044",
+   "why": "square 4, top-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 3, -4],
+   "code": "9260999118000000000051",
+   "why": "square 4, bottom-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -4, -4],
+   "code": "9260999118000000000058",
+   "why": "square 4, bottom-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 3, 0],
+   "code": "9260999118000000000047",
+   "why": "square 4, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -4, 0],
+   "code": "9260999118000000000062",
+   "why": "square 4, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -4, 2],
+   "code": "9260999118000000000064",
+   "why": "square 4, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 3, 2],
+   "code": "9260999118000000000045",
+   "why": "square 4, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [-10500000, -4, 3],
+   "code": "9260999559000000000037",
+   "why": "square 4, top-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 3, 3],
+   "code": "9260999559000000000044",
+   "why": "square 4, top-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 3, -4],
+   "code": "9260999559000000000051",
+   "why": "square 4, bottom-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -4, -4],
+   "code": "9260999559000000000058",
+   "why": "square 4, bottom-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 3, 0],
+   "code": "9260999559000000000047",
+   "why": "square 4, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -4, 0],
+   "code": "9260999559000000000062",
+   "why": "square 4, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -4, 2],
+   "code": "9260999559000000000064",
+   "why": "square 4, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 3, 2],
+   "code": "9260999559000000000045",
+   "why": "square 4, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [0, -10, 9],
+   "code": "0000000000000000000325",
+   "why": "square 10, top-left corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 9, 9],
+   "code": "0000000000000000000344",
+   "why": "square 10, top-right corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 9, -10],
+   "code": "0000000000000000000363",
+   "why": "square 10, bottom-right corner, layer of x = 0"
+  },
+  {
+   "cell": [0, -10, -10],
+   "code": "0000000000000000000382",
+   "why": "square 10, bottom-left corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 9, 0],
+   "code": "0000000000000000000353",
+   "why": "square 10, right side, layer of x = 0"
+  },
+  {
+   "cell": [0, -10, 0],
+   "code": "0000000000000000000392",
+   "why": "square 10, left side, layer of x = 0"
+  },
+  {
+   "cell": [0, -10, 8],
+   "code": "0000000000000000000400",
+   "why": "square 10, left side, layer of x = 0"
+  },
+  {
+   "cell": [0, 9, 8],
+   "code": "0000000000000000000345",
+   "why": "square 10, right side, layer of x = 0"
+  },
+  {
+   "cell": [-1, -10, 9],
+   "code": "0000000441000000000325",
+   "why": "square 10, top-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 9, 9],
+   "code": "0000000441000000000344",
+   "why": "square 10, top-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 9, -10],
+   "code": "0000000441000000000363",
+   "why": "square 10, bottom-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, -10, -10],
+   "code": "0000000441000000000382",
+   "why": "square 10, bottom-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 9, 0],
+   "code": "0000000441000000000353",
+   "why": "square 10, right side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -10, 0],
+   "code": "0000000441000000000392",
+   "why": "square 10, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -10, 8],
+   "code": "0000000441000000000400",
+   "why": "square 10, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, 9, 8],
+   "code": "0000000441000000000345",
+   "why": "square 10, right side, layer of x = -1"
+  },
+  {
+   "cell": [1, -10, 9],
+   "code": "0000000882000000000325",
+   "why": "square 10, top-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 9, 9],
+   "code": "0000000882000000000344",
+   "why": "square 10, top-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 9, -10],
+   "code": "0000000882000000000363",
+   "why": "square 10, bottom-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, -10, -10],
+   "code": "0000000882000000000382",
+   "why": "square 10, bottom-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 9, 0],
+   "code": "0000000882000000000353",
+   "why": "square 10, right side, layer of x = 1"
+  },
+  {
+   "cell": [1, -10, 0],
+   "code": "0000000882000000000392",
+   "why": "square 10, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, -10, 8],
+   "code": "0000000882000000000400",
+   "why": "square 10, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, 9, 8],
+   "code": "0000000882000000000345",
+   "why": "square 10, right side, layer of x = 1"
+  },
+  {
+   "cell": [10499999, -10, 9],
+   "code": "9260999118000000000325",
+   "why": "square 10, top-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 9, 9],
+   "code": "9260999118000000000344",
+   "why": "square 10, top-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 9, -10],
+   "code": "9260999118000000000363",
+   "why": "square 10, bottom-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -10, -10],
+   "code": "9260999118000000000382",
+   "why": "square 10, bottom-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 9, 0],
+   "code": "9260999118000000000353",
+   "why": "square 10, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -10, 0],
+   "code": "9260999118000000000392",
+   "why": "square 10, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -10, 8],
+   "code": "9260999118000000000400",
+   "why": "square 10, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 9, 8],
+   "code": "9260999118000000000345",
+   "why": "square 10, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [-10500000, -10, 9],
+   "code": "9260999559000000000325",
+   "why": "square 10, top-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 9, 9],
+   "code": "9260999559000000000344",
+   "why": "square 10, top-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 9, -10],
+   "code": "9260999559000000000363",
+   "why": "square 10, bottom-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -10, -10],
+   "code": "9260999559000000000382",
+   "why": "square 10, bottom-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 9, 0],
+   "code": "9260999559000000000353",
+   "why": "square 10, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -10, 0],
+   "code": "9260999559000000000392",
+   "why": "square 10, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -10, 8],
+   "code": "9260999559000000000400",
+   "why": "square 10, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 9, 8],
+   "code": "9260999559000000000345",
+   "why": "square 10, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [0, -1000, 999],
+   "code": "0000000000000003992005",
+   "why": "square 1000, top-left corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 999, 999],
+   "code": "0000000000000003994004",
+   "why": "square 1000, top-right corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 999, -1000],
+   "code": "0000000000000003996003",
+   "why": "square 1000, bottom-right corner, layer of x = 0"
+  },
+  {
+   "cell": [0, -1000, -1000],
+   "code": "0000000000000003998002",
+   "why": "square 1000, bottom-left corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 999, 0],
+   "code": "0000000000000003995003",
+   "why": "square 1000, right side, layer of x = 0"
+  },
+  {
+   "cell": [0, -1000, 0],
+   "code": "0000000000000003999002",
+   "why": "square 1000, left side, layer of x = 0"
+  },
+  {
+   "cell": [0, -1000, 998],
+   "code": "0000000000000004000000",
+   "why": "square 1000, left side, layer of x = 0"
+  },
+  {
+   "cell": [0, 999, 998],
+   "code": "0000000000000003994005",
+   "why": "square 1000, right side, layer of x = 0"
+  },
+  {
+   "cell": [-1, -1000, 999],
+   "code": "0000000441000003992005",
+   "why": "square 1000, top-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 999, 999],
+   "code": "0000000441000003994004",
+   "why": "square 1000, top-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 999, -1000],
+   "code": "0000000441000003996003",
+   "why": "square 1000, bottom-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, -1000, -1000],
+   "code": "0000000441000003998002",
+   "why": "square 1000, bottom-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 999, 0],
+   "code": "0000000441000003995003",
+   "why": "square 1000, right side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -1000, 0],
+   "code": "0000000441000003999002",
+   "why": "square 1000, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -1000, 998],
+   "code": "0000000441000004000000",
+   "why": "square 1000, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, 999, 998],
+   "code": "0000000441000003994005",
+   "why": "square 1000, right side, layer of x = -1"
+  },
+  {
+   "cell": [1, -1000, 999],
+   "code": "0000000882000003992005",
+   "why": "square 1000, top-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 999, 999],
+   "code": "0000000882000003994004",
+   "why": "square 1000, top-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 999, -1000],
+   "code": "0000000882000003996003",
+   "why": "square 1000, bottom-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, -1000, -1000],
+   "code": "0000000882000003998002",
+   "why": "square 1000, bottom-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 999, 0],
+   "code": "0000000882000003995003",
+   "why": "square 1000, right side, layer of x = 1"
+  },
+  {
+   "cell": [1, -1000, 0],
+   "code": "0000000882000003999002",
+   "why": "square 1000, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, -1000, 998],
+   "code": "0000000882000004000000",
+   "why": "square 1000, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, 999, 998],
+   "code": "0000000882000003994005",
+   "why": "square 1000, right side, layer of x = 1"
+  },
+  {
+   "cell": [10499999, -1000, 999],
+   "code": "9260999118000003992005",
+   "why": "square 1000, top-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 999, 999],
+   "code": "9260999118000003994004",
+   "why": "square 1000, top-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 999, -1000],
+   "code": "9260999118000003996003",
+   "why": "square 1000, bottom-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -1000, -1000],
+   "code": "9260999118000003998002",
+   "why": "square 1000, bottom-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 999, 0],
+   "code": "9260999118000003995003",
+   "why": "square 1000, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -1000, 0],
+   "code": "9260999118000003999002",
+   "why": "square 1000, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -1000, 998],
+   "code": "9260999118000004000000",
+   "why": "square 1000, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 999, 998],
+   "code": "9260999118000003994005",
+   "why": "square 1000, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [-10500000, -1000, 999],
+   "code": "9260999559000003992005",
+   "why": "square 1000, top-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 999, 999],
+   "code": "9260999559000003994004",
+   "why": "square 1000, top-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 999, -1000],
+   "code": "9260999559000003996003",
+   "why": "square 1000, bottom-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -1000, -1000],
+   "code": "9260999559000003998002",
+   "why": "square 1000, bottom-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 999, 0],
+   "code": "9260999559000003995003",
+   "why": "square 1000, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -1000, 0],
+   "code": "9260999559000003999002",
+   "why": "square 1000, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -1000, 998],
+   "code": "9260999559000004000000",
+   "why": "square 1000, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 999, 998],
+   "code": "9260999559000003994005",
+   "why": "square 1000, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [0, -10500000, 10499999],
+   "code": "0000000440999916000005",
+   "why": "square 10500000, top-left corner, layer of x = 0; outermost square, top-left corner"
+  },
+  {
+   "cell": [0, 10499999, 10499999],
+   "code": "0000000440999937000004",
+   "why": "square 10500000, top-right corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 10499999, -10500000],
+   "code": "0000000440999958000003",
+   "why": "square 10500000, bottom-right corner, layer of x = 0"
+  },
+  {
+   "cell": [0, -10500000, -10500000],
+   "code": "0000000440999979000002",
+   "why": "square 10500000, bottom-left corner, layer of x = 0"
+  },
+  {
+   "cell": [0, 10499999, 0],
+   "code": "0000000440999947500003",
+   "why": "square 10500000, right side, layer of x = 0"
+  },
+  {
+   "cell": [0, -10500000, 0],
+   "code": "0000000440999989500002",
+   "why": "square 10500000, left side, layer of x = 0"
+  },
+  {
+   "cell": [0, -10500000, 10499998],
+   "code": "0000000441000000000000",
+   "why": "square 10500000, left side, layer of x = 0; last cell of layer 0 (the original decoders fail here)"
+  },
+  {
+   "cell": [0, 10499999, 10499998],
+   "code": "0000000440999937000005",
+   "why": "square 10500000, right side, layer of x = 0"
+  },
+  {
+   "cell": [-1, -10500000, 10499999],
+   "code": "0000000881999916000005",
+   "why": "square 10500000, top-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 10499999, 10499999],
+   "code": "0000000881999937000004",
+   "why": "square 10500000, top-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 10499999, -10500000],
+   "code": "0000000881999958000003",
+   "why": "square 10500000, bottom-right corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, -10500000, -10500000],
+   "code": "0000000881999979000002",
+   "why": "square 10500000, bottom-left corner, layer of x = -1"
+  },
+  {
+   "cell": [-1, 10499999, 0],
+   "code": "0000000881999947500003",
+   "why": "square 10500000, right side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -10500000, 0],
+   "code": "0000000881999989500002",
+   "why": "square 10500000, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, -10500000, 10499998],
+   "code": "0000000882000000000000",
+   "why": "square 10500000, left side, layer of x = -1"
+  },
+  {
+   "cell": [-1, 10499999, 10499998],
+   "code": "0000000881999937000005",
+   "why": "square 10500000, right side, layer of x = -1"
+  },
+  {
+   "cell": [1, -10500000, 10499999],
+   "code": "0000001322999916000005",
+   "why": "square 10500000, top-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 10499999, 10499999],
+   "code": "0000001322999937000004",
+   "why": "square 10500000, top-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 10499999, -10500000],
+   "code": "0000001322999958000003",
+   "why": "square 10500000, bottom-right corner, layer of x = 1"
+  },
+  {
+   "cell": [1, -10500000, -10500000],
+   "code": "0000001322999979000002",
+   "why": "square 10500000, bottom-left corner, layer of x = 1"
+  },
+  {
+   "cell": [1, 10499999, 0],
+   "code": "0000001322999947500003",
+   "why": "square 10500000, right side, layer of x = 1"
+  },
+  {
+   "cell": [1, -10500000, 0],
+   "code": "0000001322999989500002",
+   "why": "square 10500000, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, -10500000, 10499998],
+   "code": "0000001323000000000000",
+   "why": "square 10500000, left side, layer of x = 1"
+  },
+  {
+   "cell": [1, 10499999, 10499998],
+   "code": "0000001322999937000005",
+   "why": "square 10500000, right side, layer of x = 1"
+  },
+  {
+   "cell": [10499999, -10500000, 10499999],
+   "code": "9260999558999916000005",
+   "why": "square 10500000, top-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 10499999, 10499999],
+   "code": "9260999558999937000004",
+   "why": "square 10500000, top-right corner, layer of x = 10499999; corner of the 21 million metre cube"
+  },
+  {
+   "cell": [10499999, 10499999, -10500000],
+   "code": "9260999558999958000003",
+   "why": "square 10500000, bottom-right corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -10500000, -10500000],
+   "code": "9260999558999979000002",
+   "why": "square 10500000, bottom-left corner, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 10499999, 0],
+   "code": "9260999558999947500003",
+   "why": "square 10500000, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -10500000, 0],
+   "code": "9260999558999989500002",
+   "why": "square 10500000, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, -10500000, 10499998],
+   "code": "9260999559000000000000",
+   "why": "square 10500000, left side, layer of x = 10499999"
+  },
+  {
+   "cell": [10499999, 10499999, 10499998],
+   "code": "9260999558999937000005",
+   "why": "square 10500000, right side, layer of x = 10499999"
+  },
+  {
+   "cell": [-10500000, -10500000, 10499999],
+   "code": "9260999999999916000005",
+   "why": "square 10500000, top-left corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 10499999, 10499999],
+   "code": "9260999999999937000004",
+   "why": "square 10500000, top-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, 10499999, -10500000],
+   "code": "9260999999999958000003",
+   "why": "square 10500000, bottom-right corner, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -10500000, -10500000],
+   "code": "9260999999999979000002",
+   "why": "square 10500000, bottom-left corner, layer of x = -10500000; corner of the 21 million metre cube"
+  },
+  {
+   "cell": [-10500000, 10499999, 0],
+   "code": "9260999999999947500003",
+   "why": "square 10500000, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -10500000, 0],
+   "code": "9260999999999989500002",
+   "why": "square 10500000, left side, layer of x = -10500000"
+  },
+  {
+   "cell": [-10500000, -10500000, 10499998],
+   "code": "9261000000000000000000",
+   "why": "square 10500000, left side, layer of x = -10500000; the last code, 21 million cubed"
+  },
+  {
+   "cell": [-10500000, 10499999, 10499998],
+   "code": "9260999999999937000005",
+   "why": "square 10500000, right side, layer of x = -10500000"
+  },
+  {
+   "cell": [0, -3, -1],
+   "code": "0000000000000000000034",
+   "why": "published diagram cube 34"
+  },
+  {
+   "cell": [0, -2, -1],
+   "code": "0000000000000000000015",
+   "why": "published diagram cube 15"
+  },
+  {
+   "cell": [0, 1, -1],
+   "code": "0000000000000000000010",
+   "why": "published diagram cube 10"
+  },
+  {
+   "cell": [0, 2, -1],
+   "code": "0000000000000000000025",
+   "why": "published diagram cube 25"
+  },
+  {
+   "cell": [0, -3, -2],
+   "code": "0000000000000000000033",
+   "why": "published diagram cube 33"
+  },
+  {
+   "cell": [0, 2, -2],
+   "code": "0000000000000000000026",
+   "why": "published diagram cube 26"
+  },
+  {
+   "cell": [-6378137, 0, 0],
+   "code": "5625516393000000000002",
+   "why": "cell containing lat 0, lon 180, h 0 if cells are [i, i+1) (see D3)"
+  },
+  {
+   "cell": [3977994, -500000, 499997],
+   "code": "3508590708999999999999",
+   "why": "code ending in twelve 9s (the 3xyz2cube display split gets it wrong)"
+  },
+  {
+   "cell": [1334000, -4654053, 4138306],
+   "code": "1176588086640836791491",
+   "why": "New York, 10 m: a left-side cell"
+  }
+ ],
+ "unresolved_d1_d2": [
+  {
+   "cell": [0, -2, 2],
+   "why": "published diagram cube 18, top-row interior",
+   "candidates": {
+    "A": "0000000000000000000018",
+    "B": "0000000000000000000021",
+    "L": "0000000000000000000021"
+   },
+   "witnesses": {
+    "diagram": 18
+   }
+  },
+  {
+   "cell": [0, -1, 2],
+   "why": "published diagram cube 19, top-row interior",
+   "candidates": {
+    "A": "0000000000000000000019",
+    "B": "0000000000000000000020",
+    "L": "0000000000000000000020"
+   },
+   "witnesses": {
+    "diagram": 19,
+    "bug_bounty": "bug-bounty example 3 expects 19"
+   }
+  },
+  {
+   "cell": [0, 0, 2],
+   "why": "published diagram cube 20, top-row interior",
+   "candidates": {
+    "A": "0000000000000000000020",
+    "B": "0000000000000000000019",
+    "L": "0000000000000000000019"
+   },
+   "witnesses": {
+    "diagram": 20
+   }
+  },
+  {
+   "cell": [0, 1, 2],
+   "why": "published diagram cube 21, top-row interior",
+   "candidates": {
+    "A": "0000000000000000000021",
+    "B": "0000000000000000000018",
+    "L": "0000000000000000000018"
+   },
+   "witnesses": {
+    "diagram": 21,
+    "bug_bounty": "bug-bounty example 9 expects 18"
+   }
+  },
+  {
+   "cell": [0, -1, 1],
+   "why": "published diagram cube 6, top-row interior",
+   "candidates": {
+    "A": "0000000000000000000006",
+    "B": "0000000000000000000007",
+    "L": "0000000000000000000007"
+   },
+   "witnesses": {
+    "diagram": 6,
+    "bug_bounty": "bug-bounty example 2 expects 6"
+   }
+  },
+  {
+   "cell": [0, 0, 1],
+   "why": "published diagram cube 7, top-row interior",
+   "candidates": {
+    "A": "0000000000000000000007",
+    "B": "0000000000000000000006",
+    "L": "0000000000000000000006"
+   },
+   "witnesses": {
+    "diagram": 7
+   }
+  },
+  {
+   "cell": [0, -1, -2],
+   "why": "published diagram cube 13, bottom-row interior",
+   "candidates": {
+    "A": "0000000000000000000013",
+    "B": "0000000000000000000013",
+    "L": "0000000000000000000014"
+   },
+   "witnesses": {
+    "diagram": 13
+   }
+  },
+  {
+   "cell": [0, 0, -2],
+   "why": "published diagram cube 12, bottom-row interior",
+   "candidates": {
+    "A": "0000000000000000000012",
+    "B": "0000000000000000000012",
+    "L": "0000000000000000000013"
+   },
+   "witnesses": {
+    "diagram": 12
+   }
+  },
+  {
+   "cell": [0, -2, -3],
+   "why": "published diagram cube 31, bottom-row interior",
+   "candidates": {
+    "A": "0000000000000000000031",
+    "B": "0000000000000000000031",
+    "L": "0000000000000000000032"
+   },
+   "witnesses": {
+    "diagram": 31
+   }
+  },
+  {
+   "cell": [0, -1, -3],
+   "why": "published diagram cube 30, bottom-row interior",
+   "candidates": {
+    "A": "0000000000000000000030",
+    "B": "0000000000000000000030",
+    "L": "0000000000000000000031"
+   },
+   "witnesses": {
+    "diagram": 30
+   }
+  },
+  {
+   "cell": [0, 0, -3],
+   "why": "published diagram cube 29, bottom-row interior",
+   "candidates": {
+    "A": "0000000000000000000029",
+    "B": "0000000000000000000029",
+    "L": "0000000000000000000030"
+   },
+   "witnesses": {
+    "diagram": 29
+   }
+  },
+  {
+   "cell": [0, 1, -3],
+   "why": "published diagram cube 28, bottom-row interior",
+   "candidates": {
+    "A": "0000000000000000000028",
+    "B": "0000000000000000000028",
+    "L": "0000000000000000000029"
+   },
+   "witnesses": {
+    "diagram": 28
+   }
+  },
+  {
+   "cell": [3561896, -8402970, -9767162],
+   "why": "inventor's Pi example, bottom-row interior (website.html 384, 459-463)",
+   "candidates": {
+    "A": "3141592653589793238462",
+    "B": "3141592653589793238462",
+    "L": "3141592653589793238463"
+   },
+   "witnesses": {
+    "published_code": "3141592653589793238462"
+   }
+  },
+  {
+   "cell": [3977994, -8874, 4968874],
+   "why": "London (51.5074, -0.1278, 0 m), top-row interior",
+   "candidates": {
+    "A": "3508590806758840271506",
+    "B": "3508590806758840289253",
+    "L": "3508590806758840289253"
+   }
+  },
+  {
+   "cell": [-4646066, 2553214, -3534384],
+   "why": "Sydney (-33.8688, 151.2093, 20 m), bottom-row interior",
+   "candidates": {
+    "A": "4097829820967467881460",
+    "B": "4097829820967467881460",
+    "L": "4097829820967467881461"
+   }
+  },
+  {
+   "cell": [-8658204, 5013421, 6131349],
+   "why": "prose example 7636535637373773383976 (website.html 138), top-row interior",
+   "candidates": {
+    "A": "7636535637373773383976",
+    "B": "7636535637373763357133",
+    "L": "7636535637373763357133"
+   },
+   "witnesses": {
+    "published_code": "7636535637373773383976"
+   }
+  }
+ ],
+ "unresolved_d3": {
+  "points": [
+   {
+    "point": [-3.0, 0.5, 0.5],
+    "why": "X is exactly -3",
+    "floor_cell": [-3, 0, 0],
+    "floor_code": "0000002205000000000002",
+    "coord_round_cell": [-4, 0, 0],
+    "coord_round_code": "0000003087000000000002"
+   },
+   {
+    "point": [0.5, -1.0, 0.5],
+    "why": "Y is exactly -1",
+    "floor_cell": [0, -1, 0],
+    "floor_code": "0000000000000000000001",
+    "coord_round_cell": [0, -2, 0],
+    "coord_round_code": "0000000000000000000016"
+   },
+   {
+    "point": [-6378137.0, 0.5, 0.5],
+    "why": "X equals -6378137, as at lat 0, lon 180, h 0",
+    "floor_cell": [-6378137, 0, 0],
+    "floor_code": "5625516393000000000002",
+    "coord_round_cell": [-6378138, 0, 0],
+    "coord_round_code": "5625517275000000000002"
+   },
+   {
+    "point": [0.5, -6378137.0, 0.5],
+    "why": "Y equals -6378137, as at lat 0, lon -90, h 0",
+    "floor_cell": [0, -6378137, 0],
+    "floor_code": "0000000162722519984941",
+    "coord_round_cell": [0, -6378138, 0],
+    "coord_round_code": "0000000162722571010040"
+   }
+  ],
+  "gps": [
+   {
+    "why": "North Pole",
+    "lat": 90,
+    "lon": 0,
+    "h": 0,
+    "floor_cell": [0, 0, 6356752],
+    "coord_round_cell": [0, 0, 6356752],
+    "note": "a coordinate lies on or within nanometres of a cell boundary; depends on D3 and D7"
+   },
+   {
+    "why": "South Pole at 2835 m",
+    "lat": -90,
+    "lon": 0,
+    "h": 2835,
+    "floor_cell": [0, 0, -6359588],
+    "coord_round_cell": [0, 0, -6359588],
+    "note": "a coordinate lies on or within nanometres of a cell boundary; depends on D3 and D7"
+   },
+   {
+    "why": "Equator, lon 90",
+    "lat": 0,
+    "lon": 90,
+    "h": 0,
+    "floor_cell": [0, 6378137, 0],
+    "coord_round_cell": [0, 6378137, 0],
+    "note": "a coordinate lies on or within nanometres of a cell boundary; depends on D3 and D7"
+   },
+   {
+    "why": "Equator, lon 180",
+    "lat": 0,
+    "lon": 180,
+    "h": 0,
+    "floor_cell": [-6378137, 0, 0],
+    "coord_round_cell": [-6378138, 0, 0],
+    "note": "a coordinate lies on or within nanometres of a cell boundary; depends on D3 and D7"
+   },
+   {
+    "why": "Equator, lon -90",
+    "lat": 0,
+    "lon": -90,
+    "h": 0,
+    "floor_cell": [0, -6378137, 0],
+    "coord_round_cell": [0, -6378138, 0],
+    "note": "a coordinate lies on or within nanometres of a cell boundary; depends on D3 and D7"
+   }
+  ]
+ },
+ "unresolved_d4": [
+  {
+   "cell": [0, 10500000, 0],
+   "why": "y one metre beyond the cube (right side of square 10500001)",
+   "unchecked_code": "0000000441000031500002",
+   "unchecked_code_falls_in_layer_of_x": -1
+  },
+  {
+   "cell": [0, -10500001, 0],
+   "why": "y one metre beyond the cube (left side of square 10500001)",
+   "unchecked_code": "0000000441000073500005",
+   "unchecked_code_falls_in_layer_of_x": -1
+  },
+  {
+   "cell": [-10500001, 0, 0],
+   "why": "x one metre beyond the back face",
+   "unchecked_code": "9261000441000000000002",
+   "unchecked_code_exceeds_last_code": true
+  },
+  {
+   "cell": [11400000, 0, 0],
+   "why": "x far beyond the front face: the code no longer fits in 22 digits",
+   "unchecked_code": "10054800000000000000002",
+   "unchecked_code_digits": 23
+  }
+ ],
+ "unresolved_d5": [
+  {
+   "input": "1",
+   "why": "cube number without leading zeros (website.html 382-383)"
+  },
+  {
+   "input": "7636535637-373773383976",
+   "why": "prefix and dash display (website.html 137-139)"
+  },
+  {
+   "input": "3141 5926 5358 9793 2384 62",
+   "why": "digits grouped with spaces"
+  },
+  {
+   "input": " 3141592653589793238462 ",
+   "why": "surrounding spaces"
+  }
+ ],
+ "gps_cells": [
+  {
+   "why": "London",
+   "lat": 51.5074,
+   "lon": -0.1278,
+   "h": 0,
+   "cell": [3977994, -8874, 4968874],
+   "min_distance_to_cell_boundary_m": 0.053402
+  },
+  {
+   "why": "New York",
+   "lat": 40.7128,
+   "lon": -74.006,
+   "h": 10,
+   "cell": [1334000, -4654053, 4138306],
+   "min_distance_to_cell_boundary_m": 0.129207
+  },
+  {
+   "why": "Sydney",
+   "lat": -33.8688,
+   "lon": 151.2093,
+   "h": 20,
+   "cell": [-4646066, 2553214, -3534384],
+   "min_distance_to_cell_boundary_m": 0.17441
+  },
+  {
+   "why": "Tokyo",
+   "lat": 35.6762,
+   "lon": 139.6503,
+   "h": 40,
+   "cell": [-3953100, 3358372, 3699089],
+   "min_distance_to_cell_boundary_m": 0.031278
+  },
+  {
+   "why": "Sao Paulo",
+   "lat": -23.55,
+   "lon": -46.63,
+   "h": 760,
+   "cell": [4017741, -4253102, -2532978],
+   "min_distance_to_cell_boundary_m": 0.070991
+  },
+  {
+   "why": "Reykjavik",
+   "lat": 64.1466,
+   "lon": -21.9426,
+   "h": 15,
+   "cell": [2586859, -1042146, 5716873],
+   "min_distance_to_cell_boundary_m": 0.0267
+  },
+  {
+   "why": "Nairobi",
+   "lat": -1.2921,
+   "lon": 36.8219,
+   "h": 1795,
+   "cell": [5105860, 3822716, -142902],
+   "min_distance_to_cell_boundary_m": 0.362862
+  }
+ ],
+ "code_range": {
+  "first": {
+   "cell": [0, -1, 0],
+   "code": "0000000000000000000001"
+  },
+  "last": {
+   "cell": [-10500000, -10500000, 10499998],
+   "code": "9261000000000000000000"
+  },
+  "not_a_cube": [
+   "0000000000000000000000",
+   "9261000000000000000001",
+   "9999999999999999999999"
+  ]
+ }
+}
