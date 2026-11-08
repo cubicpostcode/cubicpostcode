@@ -75,6 +75,26 @@
             margin: 6px 4px 6px 0;
         }
         .gps-btn, .live-btn { background: var(--accent); color: #000; font-weight: 600; }
+        .copy-btn {
+            background: #353535;
+            box-shadow: 0 3px 0 #171717;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+        }
+        .copy-btn:hover { background: #444; }
+        .copy-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 0 0 #171717;
+        }
+        .copy-btn.copied {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 3px 0 #006b80;
+        }
+        .copy-btn.copied:active { box-shadow: 0 0 0 #006b80; }
+        .copy-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+        @media (prefers-reduced-motion: reduce) {
+            .copy-btn { transition: none; }
+        }
         .live-btn.stop { background: #ff4444; color: white; }
         .status { margin-top: 8px; font-size: 0.95rem; min-height: 22px; }
         .history {
@@ -160,7 +180,7 @@
                 <div>
                     <h3>Current Cube Code</h3>
                     <div id="cubeResult" class="result">—</div>
-                    <button onclick="copyCube()" class="copy-btn">📋 Copy Code</button>
+                    <button onclick="copyCube(this)" class="copy-btn" type="button" aria-live="polite">📋 Copy Code</button>
                 </div>
             </div>
 
@@ -357,9 +377,22 @@
             document.getElementById('gpsResult').innerHTML = `<strong>✅ Decoded:</strong><br>Lat: ${lat.toFixed(6)}°<br>Lon: ${lon.toFixed(6)}°<br>Alt: ${alt.toFixed(1)} m`;
         }
 
-        function copyCube() {
+        let copyFeedbackTimer;
+        async function copyCube(button) {
             const code = document.getElementById('cubeResult').textContent.trim();
-            navigator.clipboard.writeText(code + " #CubicPostcode");
+            clearTimeout(copyFeedbackTimer);
+            try {
+                await navigator.clipboard.writeText(code + " #CubicPostcode");
+                button.textContent = "✓ Copied!";
+                button.classList.add('copied');
+            } catch (error) {
+                button.textContent = "Couldn't copy";
+                button.classList.remove('copied');
+            }
+            copyFeedbackTimer = setTimeout(() => {
+                button.textContent = "📋 Copy Code";
+                button.classList.remove('copied');
+            }, 1600);
         }
 
         function validateCubeInput(input) {
