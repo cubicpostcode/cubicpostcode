@@ -1,0 +1,5227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn French Verbs!</title>
+<style>
+    :root {
+        --regular: #CDEAC0;    /* regular verbs   */
+        --irregular: #FFB4A2;  /* irregular verbs */
+    }
+
+    body {
+        background-color: #FCF0DA;
+        margin: 0 15px 0 20px;
+        padding-bottom: 30px;
+        font-family: Arial, sans-serif;
+    }
+
+    body::before, body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        width: 15px;
+        height: 100%;
+        background-color: #400000;
+        z-index: 3;
+    }
+    body::before { left: 0; }
+    body::after  { right: 0; }
+
+    .legend {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #FCF0DA;
+        padding: 10px 5px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #e3cfa5;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9em;
+        color: #400000;
+    }
+
+    .legend button {
+        font: inherit;
+        font-weight: 700;
+        color: #1b2a41;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+    .legend button.regular   { background-color: var(--regular); }
+    .legend button.irregular { background-color: var(--irregular); }
+    .legend button.off       { opacity: 0.35; }
+    .legend button.tool      { background-color: #F9E4BD; color: #400000; }
+    .legend button[hidden]   { display: none; }
+    .legend button:focus-visible,
+    .word-container:focus-visible { outline: 3px solid #400000; outline-offset: 2px; }
+    .legend .hint { margin-left: auto; font-style: italic; }
+
+    .word-container {
+        display: inline-block;
+        vertical-align: top;
+        width: 150px;
+        text-align: center;
+        margin: 5px;
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+    }
+    .word-container.regular   { background-color: var(--regular); }
+    .word-container.irregular { background-color: var(--irregular); }
+    .word-container:hover     { filter: brightness(0.92); }
+    .word-container.speaking  { box-shadow: 0 0 0 3px #400000; }
+    .word-container.hidden    { display: none; }
+
+    .french-word {
+        font-size: 1.2em;
+        font-weight: 700;
+        color: #1b2a41;
+        display: block;
+        word-wrap: break-word;
+    }
+
+    .translation {
+        font-style: italic;
+        font-size: 0.9em;
+        display: block;
+        color: #3a3f58;
+        word-wrap: break-word;
+    }
+</style>
+</head>
+<body>
+
+<div class="legend">
+    <button type="button" class="regular" data-type="regular" aria-pressed="true"></button>
+    <button type="button" class="irregular" data-type="irregular" aria-pressed="true"></button>
+    <button type="button" class="tool" id="shuffle">&#x1F500; Shuffle</button>
+    <button type="button" class="tool" id="restore" hidden>&#x21A9; Original order</button>
+    <span class="hint">Click a verb to hear it &middot; click a colour to hide/show that group</span>
+</div>
+
+<div id="grid"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // verb | translation | r = regular, i = irregular
+    // The first block stays in this order (most essential verbs first);
+    // everything after the "---" line is sorted alphabetically.
+    const data = `
+être|to be|i
+avoir|to have|i
+aller|to go|i
+faire|to do / to make|i
+arriver|to arrive|r
+dire|to say|i
+pouvoir|to be able to|i
+vouloir|to want|i
+savoir|to know (a fact)|i
+voir|to see|i
+devoir|to have to|i
+venir|to come|i
+prendre|to take|i
+parler|to speak|r
+aimer|to like / to love|r
+donner|to give|r
+trouver|to find|r
+mettre|to put|i
+penser|to think|r
+finir|to finish|r
+attendre|to wait|r
+partir|to leave|i
+manger|to eat|r
+boire|to drink|i
+---
+abattre|to knock down|i
+accepter|to accept|r
+accomplir|to accomplish|r
+accueillir|to welcome|i
+acheter|to buy|r
+acquérir|to acquire|i
+admettre|to admit|i
+adorer|to adore|r
+agir|to act|r
+aider|to help|r
+ajouter|to add|r
+amener|to bring (someone)|r
+s'amuser|to have fun|r
+annoncer|to announce|r
+apercevoir|to catch sight of|i
+apparaître|to appear|i
+appartenir|to belong|i
+appeler|to call|r
+s'appeler|to be called|r
+applaudir|to applaud|r
+apporter|to bring (something)|r
+apprécier|to appreciate|r
+apprendre|to learn|i
+arrêter|to stop|r
+s'asseoir|to sit down|i
+atteindre|to reach|i
+atterrir|to land|r
+avancer|to move forward|r
+avertir|to warn|r
+bâtir|to build|r
+battre|to beat|i
+bavarder|to chat|r
+bouger|to move|r
+bouillir|to boil|i
+briller|to shine|r
+brûler|to burn|r
+cacher|to hide|r
+casser|to break|r
+causer|to cause|r
+célébrer|to celebrate|r
+cesser|to cease|r
+changer|to change|r
+chanter|to sing|r
+chercher|to look for|r
+choisir|to choose|r
+combattre|to fight|i
+commander|to order|r
+commencer|to begin|r
+compléter|to complete|r
+comprendre|to understand|i
+compter|to count|r
+conclure|to conclude|i
+conduire|to drive|i
+confondre|to confuse|r
+connaître|to know (a person/place)|i
+conquérir|to conquer|i
+conseiller|to advise|r
+considérer|to consider|r
+construire|to build|i
+contenir|to contain|i
+continuer|to continue|r
+convaincre|to convince|i
+correspondre|to correspond|r
+corriger|to correct|r
+se coucher|to go to bed|r
+coudre|to sew|i
+couper|to cut|r
+courir|to run|i
+coûter|to cost|r
+couvrir|to cover|i
+craindre|to fear|i
+créer|to create|r
+crier|to shout|r
+croire|to believe|i
+cueillir|to pick (flowers, fruit)|i
+cuire|to cook|i
+cuisiner|to cook (a meal)|r
+danser|to dance|r
+décevoir|to disappoint|i
+décider|to decide|r
+déclarer|to declare|r
+découvrir|to discover|i
+décrire|to describe|i
+défendre|to defend / to forbid|r
+définir|to define|r
+déjeuner|to have lunch|r
+demander|to ask|r
+déménager|to move house|r
+démolir|to demolish|r
+se dépêcher|to hurry|r
+dépendre|to depend|r
+déranger|to disturb|r
+descendre|to go down|r
+désirer|to desire|r
+dessiner|to draw|r
+détester|to hate|r
+détruire|to destroy|i
+devenir|to become|i
+deviner|to guess|r
+dîner|to have dinner|r
+diriger|to direct / to manage|r
+discuter|to discuss|r
+disparaître|to disappear|i
+distraire|to distract / to entertain|i
+divorcer|to divorce|r
+dormir|to sleep|i
+douter|to doubt|r
+durer|to last|r
+échouer|to fail|r
+écouter|to listen|r
+écrire|to write|i
+effacer|to erase|r
+élire|to elect|i
+embrasser|to kiss|r
+emmener|to take (someone) along|r
+employer|to use / to employ|r
+emporter|to take away|r
+emprunter|to borrow|r
+enlever|to remove|r
+enseigner|to teach|r
+entendre|to hear|r
+entrer|to enter|r
+entreprendre|to undertake|i
+envahir|to invade|r
+envoyer|to send|i
+épouser|to marry|r
+espérer|to hope|r
+essayer|to try|r
+établir|to establish|r
+éteindre|to switch off|i
+étendre|to spread out|r
+étudier|to study|r
+éviter|to avoid|r
+exclure|to exclude|i
+excuser|to excuse|r
+exiger|to demand|r
+exister|to exist|r
+expliquer|to explain|r
+falloir|to be necessary|i
+fermer|to close|r
+fêter|to celebrate (a party)|r
+fondre|to melt|r
+fournir|to supply|r
+franchir|to cross / to clear|r
+frapper|to hit / to knock|r
+fuir|to flee|i
+fumer|to smoke|r
+gagner|to win / to earn|r
+garantir|to guarantee|r
+garder|to keep|r
+geler|to freeze|r
+gêner|to bother|r
+glisser|to slip / to slide|r
+goûter|to taste|r
+grandir|to grow up|r
+grimper|to climb|r
+grossir|to gain weight|r
+guérir|to heal|r
+s'habiller|to get dressed|r
+habiter|to live (somewhere)|r
+haïr|to hate (strongly)|i
+hésiter|to hesitate|r
+ignorer|to not know / to ignore|r
+imaginer|to imagine|r
+inclure|to include|i
+indiquer|to indicate|r
+informer|to inform|r
+inquiéter|to worry (someone)|r
+inscrire|to enrol / to write down|i
+insister|to insist|r
+interdire|to forbid|i
+intéresser|to interest|r
+introduire|to insert / to introduce|i
+investir|to invest|r
+inviter|to invite|r
+jeter|to throw|r
+joindre|to join|i
+jouer|to play|r
+juger|to judge|r
+jurer|to swear|r
+laisser|to let / to leave (behind)|r
+lancer|to throw / to launch|r
+laver|to wash|r
+se laver|to wash oneself|r
+lever|to lift|r
+se lever|to get up|r
+lire|to read|i
+louer|to rent|r
+lutter|to struggle|r
+maigrir|to lose weight|r
+maintenir|to maintain|i
+manquer|to miss / to lack|r
+marcher|to walk|r
+mélanger|to mix|r
+mener|to lead|r
+mentionner|to mention|r
+mentir|to lie (tell lies)|i
+mériter|to deserve|r
+monter|to go up|r
+montrer|to show|r
+mordre|to bite|r
+mourir|to die|i
+nager|to swim|r
+naître|to be born|i
+neiger|to snow|r
+nettoyer|to clean|r
+nommer|to name|r
+noter|to note|r
+nourrir|to feed|r
+nuire|to harm|i
+obéir|to obey|r
+obtenir|to obtain|i
+occuper|to occupy|r
+offrir|to offer / to give (a gift)|i
+organiser|to organise|r
+oser|to dare|r
+oublier|to forget|r
+ouvrir|to open|i
+paraître|to seem|i
+parcourir|to travel through|i
+pardonner|to forgive|r
+partager|to share|r
+participer|to take part|r
+passer|to pass / to spend (time)|r
+payer|to pay|r
+pêcher|to fish|r
+peindre|to paint|i
+pendre|to hang|r
+perdre|to lose|r
+permettre|to allow|i
+peser|to weigh|r
+placer|to place|r
+plaindre|to pity|i
+plaire|to please|i
+pleurer|to cry|r
+pleuvoir|to rain|i
+plier|to fold|r
+plonger|to dive|r
+porter|to carry / to wear|r
+poser|to put down / to ask (a question)|r
+posséder|to own|r
+poursuivre|to pursue|i
+pousser|to push|r
+pratiquer|to practise|r
+prédire|to predict|i
+préférer|to prefer|r
+préparer|to prepare|r
+présenter|to present / to introduce|r
+prêter|to lend|r
+prétendre|to claim|r
+prévenir|to warn / to notify|i
+prévoir|to foresee / to plan|i
+prier|to pray / to beg|r
+produire|to produce|i
+profiter|to make the most of|r
+promener|to take for a walk|r
+se promener|to go for a walk|r
+promettre|to promise|i
+prononcer|to pronounce|r
+proposer|to suggest|r
+protéger|to protect|r
+prouver|to prove|r
+punir|to punish|r
+quitter|to leave (a place/person)|r
+raconter|to tell (a story)|r
+ralentir|to slow down|r
+ranger|to tidy up|r
+rappeler|to call back / to remind|r
+réagir|to react|r
+réaliser|to achieve / to realise|r
+recevoir|to receive|i
+reconnaître|to recognise|i
+réduire|to reduce|i
+réfléchir|to think over|r
+refuser|to refuse|r
+regarder|to look at / to watch|r
+rejoindre|to meet up with / to rejoin|i
+remercier|to thank|r
+remettre|to put back / to hand over|i
+remplacer|to replace|r
+remplir|to fill|r
+rencontrer|to meet|r
+rendre|to give back|r
+rentrer|to go home|r
+répandre|to spread|r
+réparer|to repair|r
+répéter|to repeat|r
+répondre|to answer|r
+se reposer|to rest|r
+reprendre|to take back / to resume|i
+réserver|to book|r
+résoudre|to solve|i
+respecter|to respect|r
+respirer|to breathe|r
+ressembler|to resemble|r
+ressentir|to feel (an emotion)|i
+rester|to stay|r
+retenir|to hold back / to remember|i
+retourner|to return|r
+réunir|to gather|r
+réussir|to succeed|r
+réveiller|to wake (someone)|r
+se réveiller|to wake up|r
+revenir|to come back|i
+rêver|to dream|r
+revoir|to see again|i
+rire|to laugh|i
+risquer|to risk|r
+rougir|to blush|r
+rouler|to roll / to drive along|r
+saisir|to seize|r
+salir|to make dirty|r
+saluer|to greet|r
+satisfaire|to satisfy|i
+sauter|to jump|r
+sauver|to save|r
+sécher|to dry|r
+séduire|to seduce / to charm|i
+sembler|to seem|r
+sentir|to feel / to smell|i
+séparer|to separate|r
+serrer|to squeeze / to tighten|r
+servir|to serve|i
+siffler|to whistle|r
+signer|to sign|r
+soigner|to care for / to treat|r
+songer|to think / to dream|r
+sonner|to ring|r
+sortir|to go out|i
+souffler|to blow|r
+souffrir|to suffer|i
+souhaiter|to wish|r
+souligner|to underline|r
+soumettre|to submit|i
+sourire|to smile|i
+soutenir|to support|i
+se souvenir|to remember|i
+subir|to undergo|r
+suffire|to be enough|i
+suivre|to follow|i
+supposer|to suppose|r
+surprendre|to surprise|i
+survivre|to survive|i
+suspendre|to suspend / to hang up|r
+se taire|to be quiet|i
+téléphoner|to phone|r
+tendre|to stretch / to hold out|r
+tenir|to hold|i
+tenter|to attempt / to tempt|r
+terminer|to finish / to end|r
+tirer|to pull / to shoot|r
+tomber|to fall|r
+tordre|to twist|r
+toucher|to touch|r
+tourner|to turn|r
+tousser|to cough|r
+traduire|to translate|i
+trahir|to betray|r
+transmettre|to pass on / to transmit|i
+travailler|to work|r
+traverser|to cross|r
+tricher|to cheat|r
+tromper|to deceive|r
+tuer|to kill|r
+unir|to unite|r
+utiliser|to use|r
+vaincre|to defeat|i
+valoir|to be worth|i
+vendre|to sell|r
+vérifier|to check|r
+verser|to pour|r
+vider|to empty|r
+vieillir|to grow old|r
+viser|to aim|r
+visiter|to visit (a place)|r
+vivre|to live|i
+voler|to fly / to steal|r
+voter|to vote|r
+voyager|to travel|r
+abaisser|to lower|r
+abandonner|to abandon|r
+abîmer|to damage|r
+abolir|to abolish|r
+s'abonner|to subscribe|r
+aborder|to approach / to tackle|r
+aboutir|to result in / to succeed|r
+aboyer|to bark|r
+abriter|to shelter|r
+s'absenter|to go away / to be absent|r
+absorber|to absorb|r
+s'abstenir|to abstain|i
+abuser|to abuse / to overdo|r
+accabler|to overwhelm|r
+accéder|to access|r
+accélérer|to accelerate|r
+accentuer|to emphasise|r
+accompagner|to accompany|r
+accorder|to grant / to tune|r
+accoucher|to give birth|r
+accourir|to rush up|i
+accrocher|to hang up / to hook|r
+accroître|to increase|i
+s'accroupir|to squat|r
+accumuler|to accumulate|r
+accuser|to accuse|r
+achever|to complete|r
+activer|to activate / to speed up|r
+actualiser|to update|r
+adapter|to adapt|r
+additionner|to add up|r
+adhérer|to adhere / to join|r
+administrer|to administer|r
+admirer|to admire|r
+adopter|to adopt|r
+adoucir|to soften|r
+adresser|to address|r
+s'adresser|to speak to / to apply to|r
+aérer|to air out|r
+affaiblir|to weaken|r
+affamer|to starve|r
+affecter|to affect / to assign|r
+afficher|to display|r
+affirmer|to assert|r
+affoler|to throw into a panic|r
+affronter|to confront|r
+agacer|to annoy|r
+s'agenouiller|to kneel|r
+aggraver|to worsen|r
+agiter|to shake / to wave|r
+agrafer|to staple|r
+agrandir|to enlarge|r
+agresser|to attack|r
+ajuster|to adjust|r
+alarmer|to alarm|r
+alerter|to alert|r
+aligner|to line up|r
+alimenter|to feed / to supply|r
+allaiter|to breastfeed|r
+alléger|to lighten|r
+allonger|to lengthen|r
+s'allonger|to lie down|r
+allumer|to light / to switch on|r
+alterner|to alternate|r
+améliorer|to improve|r
+s'améliorer|to get better|r
+aménager|to fit out / to develop|r
+amincir|to slim down|r
+amplifier|to amplify|r
+amuser|to amuse|r
+analyser|to analyse|r
+anéantir|to annihilate|r
+animer|to liven up / to host|r
+annuler|to cancel|r
+anticiper|to anticipate|r
+apaiser|to calm|r
+s'apercevoir|to notice / to realise|i
+aplatir|to flatten|r
+appliquer|to apply|r
+apprivoiser|to tame|r
+approcher|to approach|r
+s'approcher|to come near|r
+approfondir|to deepen|r
+approuver|to approve|r
+approvisionner|to supply|r
+appuyer|to press / to support|r
+arbitrer|to referee|r
+archiver|to archive|r
+argumenter|to argue (a case)|r
+armer|to arm|r
+arracher|to tear out|r
+arranger|to arrange|r
+s'arrêter|to stop (oneself)|r
+arrondir|to round off|r
+arroser|to water|r
+articuler|to articulate|r
+aspirer|to suck up / to aspire|r
+assaisonner|to season|r
+assassiner|to murder|r
+assembler|to assemble|r
+asseoir|to seat|i
+assimiler|to assimilate|r
+assister|to attend / to assist|r
+associer|to associate|r
+assombrir|to darken|r
+assommer|to knock out|r
+assortir|to match|r
+assumer|to take on (responsibility)|r
+assurer|to assure / to insure|r
+attacher|to tie / to fasten|r
+attaquer|to attack|r
+s'attarder|to linger|r
+s'attendre|to expect|r
+atténuer|to lessen|r
+attirer|to attract|r
+attraper|to catch|r
+attribuer|to attribute|r
+attrister|to sadden|r
+augmenter|to increase|r
+automatiser|to automate|r
+autoriser|to authorise|r
+avaler|to swallow|r
+s'aventurer|to venture|r
+aveugler|to blind|r
+avouer|to confess|r
+bâcler|to botch|r
+bafouiller|to stammer|r
+se bagarrer|to fight / to brawl|r
+baigner|to bathe|r
+se baigner|to go swimming|r
+bâiller|to yawn|r
+baisser|to lower|r
+se baisser|to bend down|r
+se balader|to go for a stroll|r
+balancer|to swing / to throw|r
+balayer|to sweep|r
+balbutier|to stammer|r
+bannir|to banish|r
+baptiser|to baptise|r
+barrer|to cross out / to block|r
+basculer|to tip over|r
+baser|to base|r
+se battre|to fight|i
+baver|to drool|r
+bégayer|to stutter|r
+bénéficier|to benefit|r
+bénir|to bless|r
+bercer|to rock (a baby)|r
+beurrer|to butter|r
+blaguer|to joke|r
+blâmer|to blame|r
+blanchir|to whiten|r
+blesser|to injure|r
+se blesser|to hurt oneself|r
+bloquer|to block|r
+se blottir|to snuggle up|r
+bluffer|to bluff|r
+boiter|to limp|r
+bombarder|to bomb|r
+bondir|to leap|r
+border|to border / to tuck in|r
+bosser|to work (informal)|r
+boucher|to plug|r
+boucler|to buckle / to curl|r
+bouder|to sulk|r
+bouffer|to eat (informal)|r
+bouleverser|to upset deeply|r
+bouquiner|to read (informal)|r
+bourdonner|to buzz|r
+bourrer|to stuff|r
+bousculer|to jostle|r
+bousiller|to wreck (informal)|r
+boutonner|to button|r
+boycotter|to boycott|r
+brancher|to plug in|r
+braquer|to point (a weapon) / to rob|r
+bricoler|to do DIY|r
+briser|to shatter|r
+broder|to embroider|r
+bronzer|to tan|r
+brosser|to brush|r
+se brosser|to brush (one's teeth, hair)|r
+brouiller|to scramble / to blur|r
+bruiner|to drizzle|r
+se brûler|to burn oneself|r
+brunir|to brown|r
+se cacher|to hide (oneself)|r
+cadrer|to frame|r
+cajoler|to cuddle|r
+calculer|to calculate|r
+caler|to wedge / to stall|r
+câliner|to cuddle|r
+calmer|to calm|r
+cambrioler|to burgle|r
+camoufler|to camouflage|r
+camper|to camp|r
+canaliser|to channel|r
+capituler|to surrender|r
+capter|to pick up (a signal)|r
+captiver|to captivate|r
+capturer|to capture|r
+caractériser|to characterise|r
+caresser|to stroke|r
+se casser|to break (a bone) / to clear off|r
+céder|to give in / to yield|r
+censurer|to censor|r
+centrer|to centre|r
+cerner|to surround / to figure out|r
+certifier|to certify|r
+chahuter|to be rowdy|r
+se chamailler|to squabble|r
+se changer|to get changed|r
+chantonner|to hum|r
+charger|to load / to charge|r
+charmer|to charm|r
+chasser|to hunt / to chase away|r
+chatouiller|to tickle|r
+chauffer|to heat|r
+chavirer|to capsize|r
+chérir|to cherish|r
+chiffrer|to put a figure on / to encrypt|r
+choquer|to shock|r
+chuchoter|to whisper|r
+chuter|to fall / to drop|r
+cibler|to target|r
+circuler|to circulate / to move along|r
+cirer|to wax / to polish|r
+citer|to quote|r
+claquer|to slam / to snap|r
+clarifier|to clarify|r
+classer|to classify / to file|r
+cligner|to blink|r
+clignoter|to flash|r
+cliquer|to click|r
+clôturer|to close / to fence|r
+clouer|to nail|r
+cocher|to tick (a box)|r
+coder|to code|r
+cogner|to bang|r
+se cogner|to bump into|r
+cohabiter|to live together|r
+coiffer|to do (someone's) hair|r
+coincer|to jam / to wedge|r
+coïncider|to coincide|r
+collaborer|to collaborate|r
+collecter|to collect (funds)|r
+collectionner|to collect (as a hobby)|r
+coller|to stick / to glue|r
+coloniser|to colonise|r
+colorer|to colour|r
+colorier|to colour in|r
+combiner|to combine|r
+combler|to fill in / to fulfil|r
+commenter|to comment on|r
+commercialiser|to market|r
+commettre|to commit|i
+communiquer|to communicate|r
+comparer|to compare|r
+compatir|to sympathise|r
+compenser|to compensate|r
+complimenter|to compliment|r
+compliquer|to complicate|r
+comploter|to plot|r
+comporter|to include / to comprise|r
+se comporter|to behave|r
+composer|to compose / to dial|r
+compresser|to compress|r
+compromettre|to compromise|i
+concéder|to concede|r
+concentrer|to concentrate|r
+se concentrer|to concentrate (oneself)|r
+concerner|to concern|r
+concevoir|to design / to conceive|i
+concilier|to reconcile|r
+concourir|to compete|i
+concrétiser|to make concrete / to realise|r
+condamner|to condemn / to sentence|r
+condenser|to condense|r
+conditionner|to condition / to package|r
+confectionner|to make (clothes, dishes)|r
+confesser|to confess|r
+confier|to entrust / to confide|r
+configurer|to configure|r
+confiner|to confine|r
+confirmer|to confirm|r
+confisquer|to confiscate|r
+se conformer|to comply|r
+conforter|to reinforce|r
+confronter|to confront|r
+congeler|to deep-freeze|r
+conjuguer|to conjugate|r
+connecter|to connect|r
+se connecter|to log in|r
+consacrer|to devote|r
+conserver|to keep / to preserve|r
+consentir|to consent|i
+consister|to consist|r
+consoler|to console|r
+consolider|to consolidate|r
+consommer|to consume|r
+constater|to notice / to note|r
+constituer|to constitute|r
+consulter|to consult|r
+contacter|to contact|r
+contaminer|to contaminate|r
+contempler|to contemplate|r
+contenter|to satisfy|r
+conter|to tell (a tale)|r
+contester|to dispute|r
+contourner|to go around / to bypass|r
+contracter|to contract|r
+contraindre|to compel|i
+contrarier|to annoy / to thwart|r
+contraster|to contrast|r
+contredire|to contradict|i
+contribuer|to contribute|r
+contrôler|to check / to control|r
+convenir|to suit / to agree|i
+converser|to converse|r
+convertir|to convert|r
+convoquer|to summon|r
+coopérer|to cooperate|r
+coordonner|to coordinate|r
+copier|to copy|r
+corrompre|to corrupt|i
+coucher|to put to bed|r
+couler|to flow / to sink|r
+se couper|to cut oneself|r
+courber|to bend|r
+couronner|to crown|r
+cracher|to spit|r
+craquer|to crack / to give in|r
+créditer|to credit|r
+creuser|to dig|r
+crever|to burst / to puncture|r
+critiquer|to criticise|r
+croiser|to cross / to run into|r
+croître|to grow|i
+croquer|to crunch / to bite into|r
+culpabiliser|to feel guilty / to make feel guilty|r
+cultiver|to grow / to cultivate|r
+dater|to date|r
+déballer|to unpack|r
+débarquer|to disembark|r
+débarrasser|to clear / to rid|r
+se débarrasser|to get rid of|r
+débattre|to debate|i
+se débattre|to struggle|i
+débloquer|to unblock / to unlock|r
+déborder|to overflow|r
+déboucher|to unblock / to uncork|r
+déboutonner|to unbutton|r
+débrancher|to unplug|r
+se débrouiller|to manage / to get by|r
+débuter|to start out|r
+décaler|to shift / to postpone|r
+décéder|to pass away|r
+déceler|to detect|r
+déchaîner|to unleash|r
+décharger|to unload|r
+déchiffrer|to decipher|r
+déchirer|to tear|r
+se décider|to make up one's mind|r
+déclencher|to trigger|r
+décliner|to decline|r
+décoder|to decode|r
+décoller|to take off (plane) / to unstick|r
+décommander|to cancel (an order, an invitation)|r
+décomposer|to break down / to decompose|r
+décompresser|to unwind / to decompress|r
+déconcerter|to disconcert|r
+décongeler|to defrost|r
+déconnecter|to disconnect|r
+se déconnecter|to log out|r
+déconseiller|to advise against|r
+décontracter|to relax|r
+décorer|to decorate|r
+découler|to follow from|r
+découper|to cut out / to carve|r
+décourager|to discourage|r
+décrocher|to pick up (the phone) / to unhook|r
+dédier|to dedicate|r
+déduire|to deduce / to deduct|i
+défaire|to undo|i
+défavoriser|to put at a disadvantage|r
+défier|to challenge|r
+défigurer|to disfigure|r
+défiler|to parade / to scroll|r
+défoncer|to smash in|r
+déformer|to distort|r
+dégager|to clear / to free|r
+dégeler|to thaw|r
+dégonfler|to deflate|r
+dégoûter|to disgust|r
+dégrader|to degrade / to damage|r
+dégringoler|to tumble down|r
+déguiser|to disguise|r
+déguster|to taste / to savour|r
+délaisser|to neglect|r
+déléguer|to delegate|r
+délibérer|to deliberate|r
+délimiter|to mark out|r
+délirer|to be delirious / to rave|r
+délivrer|to free / to issue|r
+se demander|to wonder|r
+démanger|to itch|r
+démaquiller|to remove make-up|r
+démarrer|to start up|r
+démasquer|to unmask|r
+démêler|to untangle|r
+démentir|to deny|i
+demeurer|to remain / to reside|r
+démissionner|to resign|r
+démonter|to take apart|r
+démontrer|to demonstrate|r
+démoraliser|to demoralise|r
+dénicher|to unearth|r
+dénoncer|to denounce|r
+dénouer|to untie|r
+dépanner|to fix / to help out|r
+dépasser|to overtake / to exceed|r
+dépenser|to spend|r
+dépister|to screen for / to detect|r
+déplacer|to move|r
+déplaire|to displease|i
+déplier|to unfold|r
+déplorer|to deplore|r
+déployer|to deploy / to unfurl|r
+déposer|to drop off / to deposit|r
+dépouiller|to strip / to go through|r
+déprimer|to depress|r
+dérailler|to derail|r
+déraper|to skid|r
+dériver|to drift / to derive|r
+dérober|to steal|r
+dérouler|to unroll|r
+se dérouler|to take place|r
+dérouter|to divert / to disconcert|r
+désactiver|to deactivate|r
+désapprouver|to disapprove|r
+désarmer|to disarm|r
+déserter|to desert|r
+désespérer|to despair|r
+déshabiller|to undress|r
+se déshabiller|to get undressed|r
+désherber|to weed|r
+déshydrater|to dehydrate|r
+désigner|to designate / to point out|r
+désinfecter|to disinfect|r
+désinstaller|to uninstall|r
+désobéir|to disobey|r
+désoler|to distress|r
+désorganiser|to disorganise|r
+désorienter|to disorientate|r
+dessécher|to dry out|r
+desserrer|to loosen|r
+desservir|to serve (transport) / to clear (the table)|i
+déstabiliser|to destabilise|r
+destiner|to intend / to destine|r
+détacher|to untie / to detach|r
+détailler|to detail|r
+détecter|to detect|r
+détendre|to relax / to slacken|r
+se détendre|to relax|r
+détenir|to hold / to detain|i
+détériorer|to damage|r
+déterminer|to determine|r
+déterrer|to dig up|r
+détourner|to divert / to hijack|r
+dévaliser|to rob|r
+devancer|to get ahead of|r
+dévaster|to devastate|r
+développer|to develop|r
+déverrouiller|to unlock|r
+déverser|to pour out|r
+dévier|to deviate / to divert|r
+dévisager|to stare at|r
+dévisser|to unscrew|r
+dévoiler|to unveil / to reveal|r
+dévorer|to devour|r
+se dévouer|to devote oneself|r
+diagnostiquer|to diagnose|r
+dialoguer|to have a dialogue|r
+dicter|to dictate|r
+différencier|to differentiate|r
+différer|to differ / to postpone|r
+diffuser|to broadcast / to spread|r
+digérer|to digest|r
+diluer|to dilute|r
+diminuer|to decrease|r
+discerner|to discern|r
+discréditer|to discredit|r
+discriminer|to discriminate|r
+disjoncter|to trip (a fuse) / to lose it|r
+dispenser|to exempt / to dispense|r
+disperser|to scatter|r
+disposer|to arrange / to have available|r
+disputer|to contest / to tell off|r
+se disputer|to argue|r
+disqualifier|to disqualify|r
+dissimuler|to conceal|r
+dissiper|to dispel|r
+dissocier|to dissociate|r
+dissoudre|to dissolve|i
+dissuader|to dissuade|r
+distancer|to outdistance|r
+distinguer|to distinguish|r
+distribuer|to distribute|r
+diverger|to diverge|r
+diversifier|to diversify|r
+divertir|to entertain|r
+diviser|to divide|r
+divulguer|to disclose|r
+documenter|to document|r
+dominer|to dominate|r
+dompter|to tame|r
+dorloter|to pamper|r
+doser|to measure out|r
+doubler|to double / to overtake / to dub|r
+se doucher|to take a shower|r
+se douter|to suspect|r
+draguer|to flirt with|r
+dramatiser|to dramatise|r
+dresser|to put up / to train (an animal)|r
+droguer|to drug|r
+dupliquer|to duplicate|r
+durcir|to harden|r
+ébaucher|to sketch out / to draft|r
+éblouir|to dazzle|r
+ébranler|to shake|r
+écarter|to move apart / to rule out|r
+s'écarter|to move aside|r
+échanger|to exchange|r
+échapper|to escape|r
+s'échapper|to get away|r
+échauffer|to warm up|r
+éclabousser|to splash|r
+éclaircir|to lighten / to clarify|r
+éclairer|to light up|r
+éclater|to burst|r
+éclipser|to eclipse|r
+éclore|to hatch / to bloom|i
+écœurer|to sicken|r
+économiser|to save (money)|r
+écorcher|to graze / to skin|r
+s'écouler|to flow / to pass (time)|r
+écraser|to crush / to run over|r
+s'écrier|to exclaim|r
+s'écrouler|to collapse|r
+éditer|to publish / to edit|r
+éduquer|to educate|r
+effectuer|to carry out|r
+effleurer|to brush against|r
+s'effondrer|to collapse|r
+s'efforcer|to strive|r
+effrayer|to frighten|r
+égaler|to equal|r
+égaliser|to equalise|r
+égarer|to mislay|r
+s'égarer|to get lost|r
+égayer|to brighten up|r
+égoutter|to drain|r
+égratigner|to scratch|r
+éjecter|to eject|r
+élaborer|to develop / to draw up|r
+s'élancer|to dash forward|r
+élargir|to widen|r
+électrocuter|to electrocute|r
+élever|to raise / to bring up|r
+éliminer|to eliminate|r
+éloigner|to move away|r
+élucider|to clear up|r
+emballer|to wrap / to pack|r
+embarquer|to board / to embark|r
+embarrasser|to embarrass|r
+embaucher|to hire|r
+embellir|to beautify|r
+embêter|to bother / to annoy|r
+s'embrasser|to kiss (each other)|r
+embrouiller|to muddle|r
+émerger|to emerge|r
+émerveiller|to amaze|r
+émettre|to emit / to issue|i
+émigrer|to emigrate|r
+emmêler|to tangle|r
+emménager|to move in|r
+émouvoir|to move (emotionally)|i
+empaqueter|to package|r
+s'emparer|to seize|r
+empêcher|to prevent|r
+empiler|to stack|r
+empirer|to get worse|r
+empoigner|to grab|r
+empoisonner|to poison|r
+s'emporter|to lose one's temper|r
+s'empresser|to hasten|r
+emprisonner|to imprison|r
+encadrer|to frame / to supervise|r
+encaisser|to cash / to take (a blow)|r
+encercler|to encircle|r
+enchaîner|to chain / to link together|r
+enchanter|to delight|r
+encombrer|to clutter|r
+encourager|to encourage|r
+s'endetter|to get into debt|r
+endommager|to damage|r
+endormir|to put to sleep|i
+s'endormir|to fall asleep|i
+endosser|to take on / to endorse|r
+endurcir|to toughen|r
+endurer|to endure|r
+énerver|to irritate|r
+s'énerver|to get annoyed|r
+enfermer|to lock up|r
+enfiler|to slip on / to thread|r
+enflammer|to set on fire|r
+enfler|to swell|r
+enfoncer|to push in / to drive in|r
+enfouir|to bury|r
+enfreindre|to infringe|i
+s'enfuir|to run away|i
+engager|to hire / to commit|r
+engendrer|to generate|r
+engloutir|to engulf / to gobble up|r
+engourdir|to numb|r
+engraisser|to fatten|r
+engueuler|to yell at (informal)|r
+enjamber|to step over|r
+enlacer|to embrace|r
+ennuyer|to bore / to bother|r
+s'ennuyer|to be bored|r
+énoncer|to state|r
+s'enquérir|to enquire|i
+enquêter|to investigate|r
+enrager|to be furious|r
+enregistrer|to record / to register|r
+s'enrhumer|to catch a cold|r
+enrichir|to enrich|r
+enrouler|to roll up / to wind|r
+entamer|to start on|r
+entasser|to pile up|r
+s'entendre|to get along|r
+enterrer|to bury|r
+s'entêter|to persist stubbornly|r
+enthousiasmer|to fill with enthusiasm|r
+entourer|to surround|r
+s'entraider|to help one another|r
+entraîner|to train / to lead to|r
+s'entraîner|to train / to practise|r
+entraver|to hinder|r
+entreposer|to store|r
+entretenir|to maintain / to look after|i
+entrevoir|to glimpse|i
+entrouvrir|to half-open|i
+énumérer|to list|r
+envelopper|to wrap|r
+envier|to envy|r
+envisager|to consider / to envisage|r
+s'envoler|to fly away|r
+épaissir|to thicken|r
+s'épanouir|to blossom / to flourish|r
+épargner|to save / to spare|r
+éparpiller|to scatter|r
+épater|to impress|r
+épeler|to spell|r
+épicer|to spice|r
+épier|to spy on|r
+épiler|to remove hair|r
+éplucher|to peel|r
+éponger|to mop up|r
+époustoufler|to astound|r
+épouvanter|to terrify|r
+éprouver|to feel / to test|r
+épuiser|to exhaust|r
+équilibrer|to balance|r
+équiper|to equip|r
+éradiquer|to eradicate|r
+errer|to wander|r
+escalader|to climb|r
+s'esclaffer|to burst out laughing|r
+escorter|to escort|r
+escroquer|to swindle|r
+espacer|to space out|r
+espionner|to spy on|r
+esquisser|to sketch|r
+esquiver|to dodge|r
+essorer|to wring / to spin-dry|r
+essuyer|to wipe|r
+estimer|to estimate / to consider|r
+étaler|to spread|r
+éternuer|to sneeze|r
+étinceler|to sparkle|r
+étiqueter|to label|r
+étirer|to stretch|r
+s'étirer|to stretch (oneself)|r
+étoffer|to flesh out|r
+étonner|to surprise|r
+s'étonner|to be surprised|r
+étouffer|to suffocate / to stifle|r
+étourdir|to stun|r
+étrangler|to strangle|r
+étreindre|to hug / to clasp|i
+évacuer|to evacuate|r
+s'évader|to escape|r
+évaluer|to assess|r
+s'évanouir|to faint|r
+s'évaporer|to evaporate|r
+éveiller|to awaken|r
+évoluer|to evolve|r
+évoquer|to evoke / to mention|r
+exagérer|to exaggerate|r
+examiner|to examine|r
+exaspérer|to exasperate|r
+exaucer|to grant (a wish)|r
+excéder|to exceed|r
+exceller|to excel|r
+exciter|to excite|r
+s'exclamer|to exclaim|r
+s'excuser|to apologise|r
+exécuter|to carry out / to execute|r
+exempter|to exempt|r
+exercer|to exercise / to practise (a profession)|r
+exhiber|to show off|r
+exiler|to exile|r
+expédier|to send / to dispatch|r
+expérimenter|to experiment / to experience|r
+expirer|to breathe out / to expire|r
+exploiter|to exploit / to operate|r
+explorer|to explore|r
+exploser|to explode|r
+exporter|to export|r
+exposer|to exhibit / to expose|r
+exprimer|to express|r
+s'exprimer|to express oneself|r
+expulser|to expel|r
+exterminer|to exterminate|r
+extraire|to extract|i
+fabriquer|to manufacture|r
+fâcher|to anger|r
+se fâcher|to get angry|r
+faciliter|to make easier|r
+façonner|to shape|r
+facturer|to invoice|r
+faiblir|to weaken|r
+faillir|to almost (do)|i
+falsifier|to falsify|r
+familiariser|to familiarise|r
+se faner|to wilt|r
+fantasmer|to fantasise|r
+farcir|to stuff (food)|r
+farfouiller|to rummage|r
+fasciner|to fascinate|r
+fatiguer|to tire|r
+faucher|to mow / to scythe|r
+se faufiler|to weave one's way|r
+fausser|to distort|r
+favoriser|to favour|r
+feindre|to pretend|i
+fêler|to crack|r
+féliciter|to congratulate|r
+fendre|to split|r
+fertiliser|to fertilise (soil)|r
+feuilleter|to leaf through|r
+se fiancer|to get engaged|r
+se fier|to trust|r
+figer|to freeze / to congeal|r
+figurer|to appear / to represent|r
+filer|to spin / to dash off|r
+filmer|to film|r
+filtrer|to filter|r
+finaliser|to finalise|r
+financer|to finance|r
+fissurer|to crack|r
+fixer|to fix / to stare at|r
+flairer|to sniff / to sense|r
+flamber|to blaze|r
+flâner|to stroll|r
+flatter|to flatter|r
+fléchir|to bend|r
+fleurir|to flower|r
+flipper|to freak out (informal)|r
+flirter|to flirt|r
+flotter|to float|r
+foncer|to charge ahead / to darken|r
+fonctionner|to function / to work|r
+fonder|to found|r
+forcer|to force|r
+forger|to forge|r
+formater|to format|r
+former|to form / to train|r
+formuler|to formulate|r
+fortifier|to strengthen|r
+fouetter|to whip / to whisk|r
+fouiller|to search / to rummage|r
+fouiner|to snoop|r
+fourrer|to stuff / to shove|r
+fracasser|to smash|r
+fracturer|to fracture|r
+fragiliser|to weaken|r
+frauder|to defraud|r
+fredonner|to hum|r
+freiner|to brake|r
+frémir|to shudder / to simmer|r
+fréquenter|to frequent / to see regularly|r
+frimer|to show off|r
+frire|to fry|i
+friser|to curl|r
+frissonner|to shiver|r
+froisser|to crumple / to offend|r
+frôler|to brush past|r
+froncer|to frown / to gather|r
+frotter|to rub|r
+frustrer|to frustrate|r
+fuguer|to run away (from home)|r
+fusiller|to shoot (execute)|r
+fusionner|to merge|r
+gâcher|to waste / to spoil|r
+galérer|to struggle (informal)|r
+galoper|to gallop|r
+garer|to park (a vehicle)|r
+se garer|to park|r
+garnir|to garnish / to fill|r
+gaspiller|to waste|r
+gâter|to spoil|r
+gazouiller|to chirp|r
+gémir|to moan|r
+généraliser|to generalise|r
+générer|to generate|r
+gérer|to manage|r
+germer|to sprout|r
+gesticuler|to gesticulate|r
+gicler|to squirt|r
+gifler|to slap|r
+gigoter|to wriggle|r
+glacer|to chill / to ice|r
+glousser|to chuckle / to cluck|r
+gober|to gulp down|r
+se goinfrer|to stuff oneself|r
+gommer|to rub out|r
+gonfler|to inflate / to swell|r
+goutter|to drip|r
+gouverner|to govern|r
+gracier|to pardon|r
+graisser|to grease|r
+gratter|to scratch|r
+graver|to engrave|r
+gravir|to climb|r
+greffer|to graft / to transplant|r
+grêler|to hail|r
+grelotter|to shiver|r
+gribouiller|to scribble|r
+griffer|to scratch (with claws)|r
+griffonner|to scribble down|r
+grignoter|to nibble|r
+griller|to grill / to toast|r
+grimacer|to grimace|r
+grincer|to creak|r
+grogner|to growl / to grumble|r
+grommeler|to mutter|r
+gronder|to scold / to rumble|r
+grouper|to group|r
+guetter|to watch out for|r
+guider|to guide|r
+habiller|to dress|r
+habituer|to accustom|r
+s'habituer|to get used to|r
+hacher|to chop / to mince|r
+haleter|to pant|r
+halluciner|to hallucinate|r
+hanter|to haunt|r
+harceler|to harass|r
+harmoniser|to harmonise|r
+hâter|to hasten|r
+hausser|to raise / to shrug|r
+héberger|to accommodate / to host|r
+hériter|to inherit|r
+heurter|to hit / to collide with|r
+hiberner|to hibernate|r
+hiérarchiser|to rank / to prioritise|r
+hisser|to hoist|r
+hocher|to nod|r
+honorer|to honour|r
+horrifier|to horrify|r
+hospitaliser|to hospitalise|r
+huer|to boo|r
+huiler|to oil|r
+humidifier|to moisten|r
+humilier|to humiliate|r
+hurler|to scream / to howl|r
+hydrater|to moisturise / to hydrate|r
+hypnotiser|to hypnotise|r
+idéaliser|to idealise|r
+identifier|to identify|r
+illuminer|to illuminate|r
+illustrer|to illustrate|r
+imiter|to imitate|r
+immatriculer|to register (a vehicle)|r
+immerger|to immerse|r
+immigrer|to immigrate|r
+immobiliser|to immobilise|r
+s'impatienter|to grow impatient|r
+implanter|to establish / to implant|r
+implémenter|to implement|r
+impliquer|to involve / to imply|r
+implorer|to beg|r
+importer|to import / to matter|r
+imposer|to impose|r
+impressionner|to impress|r
+imprimer|to print|r
+improviser|to improvise|r
+inaugurer|to inaugurate|r
+incarner|to embody / to play (a role)|r
+incendier|to set fire to|r
+inciter|to encourage / to incite|r
+incliner|to tilt|r
+s'incliner|to bow|r
+incorporer|to incorporate|r
+inculper|to charge (with a crime)|r
+indemniser|to compensate|r
+indigner|to outrage|r
+induire|to induce / to mislead|i
+infecter|to infect|r
+infiltrer|to infiltrate|r
+infliger|to inflict|r
+influencer|to influence|r
+infuser|to brew / to infuse|r
+ingérer|to ingest|r
+inhaler|to inhale|r
+initier|to initiate / to introduce|r
+injecter|to inject|r
+injurier|to insult|r
+innocenter|to clear (of a charge)|r
+innover|to innovate|r
+inonder|to flood|r
+s'inquiéter|to worry|r
+s'inscrire|to sign up|i
+insérer|to insert|r
+insinuer|to insinuate|r
+inspecter|to inspect|r
+inspirer|to inspire / to breathe in|r
+installer|to install|r
+s'installer|to settle in|r
+instaurer|to establish|r
+instruire|to instruct|i
+insulter|to insult|r
+intégrer|to integrate|r
+intensifier|to intensify|r
+interagir|to interact|r
+intercepter|to intercept|r
+s'intéresser|to be interested|r
+interférer|to interfere|r
+interpeller|to call out to / to question|r
+interpréter|to interpret|r
+interroger|to question|r
+interrompre|to interrupt|i
+intervenir|to intervene|i
+interviewer|to interview|r
+intimider|to intimidate|r
+intituler|to title|r
+intoxiquer|to poison|r
+intriguer|to intrigue|r
+inventer|to invent|r
+inverser|to reverse|r
+invoquer|to invoke|r
+irriguer|to irrigate|r
+irriter|to irritate|r
+isoler|to isolate / to insulate|r
+jaillir|to gush out|r
+jardiner|to garden|r
+jaunir|to turn yellow|r
+jeûner|to fast|r
+jongler|to juggle|r
+jouir|to enjoy|r
+justifier|to justify|r
+kidnapper|to kidnap|r
+kiffer|to love (slang)|r
+klaxonner|to honk|r
+labourer|to plough|r
+lacer|to lace up|r
+lâcher|to let go of|r
+se lamenter|to lament|r
+languir|to languish|r
+larguer|to drop / to dump|r
+lasser|to weary|r
+se lasser|to grow tired of|r
+lécher|to lick|r
+légaliser|to legalise|r
+léguer|to bequeath|r
+libérer|to free|r
+licencier|to lay off|r
+lier|to bind / to link|r
+ligoter|to tie up|r
+limer|to file (down)|r
+limiter|to limit|r
+liquider|to liquidate|r
+lisser|to smooth|r
+lister|to list|r
+livrer|to deliver|r
+localiser|to locate|r
+loger|to house / to stay|r
+longer|to go along|r
+loucher|to squint|r
+louper|to miss / to mess up|r
+luire|to gleam|i
+mâcher|to chew|r
+maîtriser|to master / to control|r
+malmener|to mistreat|r
+maltraiter|to ill-treat|r
+manier|to handle|r
+manifester|to demonstrate / to show|r
+manipuler|to manipulate / to handle|r
+manœuvrer|to manoeuvre|r
+maquiller|to make up|r
+se maquiller|to put on make-up|r
+marchander|to haggle|r
+marier|to marry (off)|r
+se marier|to get married|r
+mariner|to marinate|r
+marmonner|to mumble|r
+marquer|to mark / to score|r
+se marrer|to have a good laugh|r
+marteler|to hammer|r
+masquer|to mask / to hide|r
+massacrer|to massacre|r
+masser|to massage|r
+maudire|to curse|i
+maximiser|to maximise|r
+méconnaître|to be unaware of / to misjudge|i
+mécontenter|to displease|r
+méditer|to meditate|r
+se méfier|to distrust / to be wary|r
+mêler|to mix|r
+mémoriser|to memorise|r
+menacer|to threaten|r
+ménager|to handle carefully / to spare|r
+mendier|to beg|r
+mépriser|to despise|r
+mesurer|to measure|r
+se mettre|to start / to place oneself|i
+meubler|to furnish|r
+meurtrir|to bruise|r
+miauler|to meow|r
+migrer|to migrate|r
+mijoter|to simmer|r
+militer|to campaign|r
+mimer|to mime|r
+mincir|to get slimmer|r
+miner|to undermine / to mine|r
+minimiser|to minimise|r
+miser|to bet|r
+mixer|to blend|r
+mobiliser|to mobilise|r
+modeler|to model / to shape|r
+modérer|to moderate|r
+moderniser|to modernise|r
+modifier|to modify|r
+moisir|to go mouldy|r
+moissonner|to harvest|r
+monopoliser|to monopolise|r
+se moquer|to make fun of|r
+motiver|to motivate|r
+se moucher|to blow one's nose|r
+moudre|to grind|i
+mouiller|to wet|r
+mouler|to mould|r
+mouvoir|to move|i
+muer|to moult / to break (voice)|r
+multiplier|to multiply|r
+munir|to equip / to provide|r
+mûrir|to ripen / to mature|r
+murmurer|to murmur|r
+muter|to transfer / to mutate|r
+mutiler|to mutilate|r
+narguer|to taunt|r
+narrer|to narrate|r
+naviguer|to sail / to browse|r
+navrer|to upset deeply|r
+nécessiter|to require|r
+négliger|to neglect|r
+négocier|to negotiate|r
+neutraliser|to neutralise|r
+nier|to deny|r
+noircir|to blacken|r
+normaliser|to standardise / to normalise|r
+notifier|to notify|r
+nouer|to tie / to knot|r
+noyer|to drown|r
+se noyer|to drown (oneself)|r
+nuancer|to qualify (a statement)|r
+numériser|to digitise / to scan|r
+numéroter|to number|r
+objecter|to object|r
+obliger|to oblige / to force|r
+obscurcir|to darken|r
+obséder|to obsess / to haunt|r
+observer|to observe|r
+s'obstiner|to persist stubbornly|r
+obstruer|to obstruct|r
+occasionner|to cause|r
+s'occuper|to take care of|r
+octroyer|to grant|r
+offenser|to offend|r
+omettre|to omit|i
+onduler|to ripple / to wave|r
+opérer|to operate|r
+opposer|to oppose / to set against|r
+s'opposer|to be opposed|r
+opprimer|to oppress|r
+opter|to opt|r
+optimiser|to optimise|r
+orchestrer|to orchestrate|r
+ordonner|to order / to prescribe|r
+orienter|to direct / to guide|r
+s'orienter|to find one's bearings|r
+orner|to adorn|r
+orthographier|to spell|r
+osciller|to oscillate|r
+ôter|to take off / to remove|r
+pagayer|to paddle|r
+pâlir|to turn pale|r
+palper|to feel (by touch)|r
+paniquer|to panic|r
+panser|to bandage / to dress (a wound)|r
+papoter|to chatter|r
+parachuter|to parachute|r
+paralyser|to paralyse|r
+parer|to adorn / to ward off|r
+paresser|to laze about|r
+parfumer|to perfume|r
+parier|to bet|r
+parquer|to pen in / to park|r
+parrainer|to sponsor|r
+parsemer|to sprinkle|r
+parvenir|to reach / to manage|i
+se passer|to happen / to do without|r
+passionner|to fascinate|r
+pasteuriser|to pasteurise|r
+patauger|to paddle / to flounder|r
+patienter|to wait patiently|r
+patiner|to skate|r
+patronner|to sponsor / to support|r
+patrouiller|to patrol|r
+paumer|to lose (informal)|r
+se pavaner|to strut|r
+paver|to pave|r
+peaufiner|to refine / to polish|r
+pécher|to sin|r
+pédaler|to pedal|r
+peigner|to comb|r
+se peigner|to comb one's hair|r
+peiner|to struggle / to sadden|r
+peler|to peel|r
+pelleter|to shovel|r
+pencher|to lean / to tilt|r
+se pencher|to lean over|r
+pénaliser|to penalise|r
+pénétrer|to penetrate / to enter|r
+pépier|to chirp|r
+percer|to pierce / to drill|r
+percevoir|to perceive / to collect|i
+percher|to perch|r
+percuter|to crash into|r
+se perdre|to get lost|r
+perdurer|to endure / to continue|r
+perfectionner|to perfect|r
+périr|to perish|r
+perler|to bead|r
+persécuter|to persecute|r
+persévérer|to persevere|r
+persister|to persist|r
+personnaliser|to personalise|r
+personnifier|to personify|r
+persuader|to persuade|r
+perturber|to disrupt|r
+pervertir|to pervert / to corrupt|r
+pester|to curse / to grumble|r
+pétiller|to sparkle / to fizz|r
+pétrifier|to petrify|r
+pétrir|to knead|r
+peupler|to populate|r
+philosopher|to philosophise|r
+photocopier|to photocopy|r
+photographier|to photograph|r
+piailler|to squawk|r
+pianoter|to tap (keys)|r
+picorer|to peck|r
+picoter|to tingle|r
+piéger|to trap|r
+piétiner|to trample|r
+piger|to get it (informal)|r
+piler|to crush / to pound|r
+piller|to loot|r
+piloter|to pilot / to fly|r
+pimenter|to spice up|r
+pincer|to pinch|r
+piocher|to dig / to draw (a card)|r
+pique-niquer|to picnic|r
+piquer|to sting / to prick|r
+pirater|to hack / to pirate|r
+pister|to track|r
+pivoter|to pivot|r
+placarder|to post (notices)|r
+plagier|to plagiarise|r
+plaider|to plead|r
+se plaindre|to complain|i
+se plaire|to enjoy being (somewhere)|i
+plaisanter|to joke|r
+plancher|to work hard (on)|r
+planer|to glide / to hover|r
+planifier|to plan|r
+planquer|to hide (informal)|r
+planter|to plant|r
+plaquer|to tackle / to dump (someone)|r
+plastifier|to laminate|r
+plâtrer|to plaster|r
+pleurnicher|to whine|r
+plisser|to pleat / to crease|r
+plomber|to fill (a tooth) / to weigh down|r
+plumer|to pluck|r
+pocher|to poach (an egg)|r
+poignarder|to stab|r
+pointer|to point / to clock in|r
+poivrer|to pepper|r
+polariser|to polarise|r
+polir|to polish|r
+politiser|to politicise|r
+polluer|to pollute|r
+pomper|to pump|r
+poncer|to sand down|r
+ponctuer|to punctuate|r
+pondre|to lay (eggs)|r
+positionner|to position|r
+positiver|to think positively|r
+poster|to post|r
+postuler|to apply (for a job)|r
+pouffer|to snigger|r
+pourchasser|to chase after|r
+pourrir|to rot|r
+pourvoir|to provide / to fill (a post)|i
+précéder|to precede|r
+préchauffer|to preheat|r
+prêcher|to preach|r
+précipiter|to hasten / to throw down|r
+se précipiter|to rush|r
+préciser|to specify|r
+préconiser|to recommend|r
+prédisposer|to predispose|r
+prédominer|to predominate|r
+se prélasser|to lounge|r
+prélever|to take (a sample) / to deduct|r
+prénommer|to give a first name to|r
+préoccuper|to worry / to preoccupy|r
+se préparer|to get ready|r
+prescrire|to prescribe|i
+présélectionner|to shortlist|r
+se présenter|to introduce oneself|r
+préserver|to preserve / to protect|r
+présider|to chair / to preside|r
+pressentir|to have a premonition of|i
+presser|to squeeze / to press|r
+pressuriser|to pressurise|r
+présumer|to presume|r
+prétexter|to give as a pretext|r
+prévaloir|to prevail|i
+primer|to prevail / to award a prize to|r
+privatiser|to privatise|r
+priver|to deprive|r
+privilégier|to favour|r
+procéder|to proceed|r
+proclamer|to proclaim|r
+procurer|to obtain / to provide|r
+profaner|to desecrate|r
+profiler|to profile|r
+programmer|to program / to schedule|r
+progresser|to progress|r
+prohiber|to prohibit|r
+projeter|to plan / to project|r
+proliférer|to proliferate|r
+prolonger|to extend|r
+promouvoir|to promote|i
+prôner|to advocate|r
+pronostiquer|to forecast|r
+propager|to spread|r
+prophétiser|to prophesy|r
+propulser|to propel|r
+proscrire|to ban|i
+prospecter|to prospect / to canvass|r
+prospérer|to prosper|r
+protester|to protest|r
+provenir|to come from|i
+provoquer|to provoke / to cause|r
+psychanalyser|to psychoanalyse|r
+publier|to publish|r
+puer|to stink|r
+puiser|to draw (from)|r
+pulvériser|to spray / to pulverise|r
+purger|to purge / to bleed (a radiator)|r
+purifier|to purify|r
+quadriller|to criss-cross / to cover (an area)|r
+quadrupler|to quadruple|r
+qualifier|to qualify / to describe|r
+quantifier|to quantify|r
+quémander|to beg for|r
+se quereller|to quarrel|r
+questionner|to question|r
+quêter|to collect (money) / to seek|r
+rabâcher|to keep repeating|r
+rabaisser|to belittle|r
+rabattre|to fold down / to pull down|i
+raboter|to plane|r
+raccommoder|to mend|r
+raccompagner|to see (someone) home|r
+raccorder|to connect|r
+raccourcir|to shorten|r
+raccrocher|to hang up (the phone)|r
+racheter|to buy back / to redeem|r
+racler|to scrape|r
+radicaliser|to radicalise|r
+radier|to strike off|r
+radiographier|to X-ray|r
+radoter|to ramble on|r
+raffermir|to firm up|r
+raffiner|to refine|r
+raffoler|to be crazy about|r
+rafistoler|to patch up|r
+rafler|to swipe / to walk off with|r
+rafraîchir|to refresh / to cool|r
+rager|to fume|r
+raidir|to stiffen|r
+railler|to mock|r
+raisonner|to reason|r
+rajeunir|to make younger / to look younger|r
+rajouter|to add more|r
+râler|to moan / to grumble|r
+rallier|to rally|r
+rallonger|to lengthen / to extend|r
+rallumer|to relight / to switch back on|r
+ramasser|to pick up / to gather|r
+ramener|to bring back|r
+ramer|to row|r
+ramollir|to soften|r
+ramoner|to sweep (a chimney)|r
+ramper|to crawl|r
+rancir|to go rancid|r
+randonner|to hike|r
+ranimer|to revive|r
+rapatrier|to repatriate|r
+râper|to grate|r
+rapetisser|to shrink|r
+se rappeler|to remember|r
+rapporter|to bring back / to report|r
+rapprocher|to bring closer|r
+se rapprocher|to get closer|r
+raser|to shave / to raze|r
+se raser|to shave (oneself)|r
+rassasier|to satisfy (hunger)|r
+rassembler|to gather|r
+rassurer|to reassure|r
+rater|to miss / to fail|r
+ratifier|to ratify|r
+rationaliser|to rationalise|r
+rationner|to ration|r
+ratisser|to rake|r
+rattacher|to attach / to link|r
+rattraper|to catch up with|r
+raturer|to cross out|r
+ravager|to ravage|r
+ravaler|to swallow back / to restore (a façade)|r
+ravir|to delight|r
+se raviser|to change one's mind|r
+ravitailler|to resupply|r
+raviver|to revive|r
+rayer|to scratch / to cross out|r
+rayonner|to shine / to radiate|r
+réactiver|to reactivate|r
+réadapter|to readjust|r
+réaffirmer|to reaffirm|r
+réajuster|to readjust|r
+réaménager|to refurbish / to redevelop|r
+réanimer|to resuscitate|r
+réapparaître|to reappear|i
+réapprendre|to relearn|i
+réapprovisionner|to restock|r
+rebaptiser|to rename|r
+rebâtir|to rebuild|r
+se rebeller|to rebel|r
+reboiser|to reforest|r
+rebondir|to bounce|r
+reboucher|to recork / to fill in|r
+rebrancher|to plug back in|r
+rebuter|to put off|r
+recadrer|to reframe / to crop|r
+recalculer|to recalculate|r
+recaler|to fail (a candidate)|r
+récapituler|to recap|r
+recenser|to take a census of / to list|r
+recentrer|to refocus|r
+réceptionner|to take delivery of|r
+recharger|to recharge / to reload|r
+réchauffer|to warm up|r
+rechercher|to search for / to research|r
+rechigner|to balk|r
+rechuter|to relapse|r
+récidiver|to reoffend|r
+réciter|to recite|r
+réclamer|to demand / to claim|r
+reclasser|to reclassify / to redeploy|r
+recoller|to stick back together|r
+récolter|to harvest|r
+recommander|to recommend|r
+recommencer|to start again|r
+récompenser|to reward|r
+recomposer|to reconstitute|r
+recompter|to recount|r
+réconcilier|to reconcile|r
+se réconcilier|to make up|r
+reconduire|to renew / to see out|i
+réconforter|to comfort|r
+reconquérir|to win back|i
+reconsidérer|to reconsider|r
+reconstituer|to reconstruct|r
+reconstruire|to rebuild|i
+reconvertir|to retrain / to convert|r
+recopier|to copy out|r
+recoudre|to sew back on|i
+recourir|to resort to|i
+recouvrer|to recover|r
+recouvrir|to cover (over)|i
+recracher|to spit out|r
+recréer|to recreate|r
+se recroqueviller|to curl up|r
+recruter|to recruit|r
+rectifier|to rectify|r
+recueillir|to collect / to gather|i
+reculer|to move back|r
+récupérer|to recover / to get back|r
+récurer|to scour|r
+recycler|to recycle|r
+redécouvrir|to rediscover|i
+redéfinir|to redefine|r
+redemander|to ask again|r
+redémarrer|to restart|r
+redéployer|to redeploy|r
+redescendre|to go back down|r
+redevenir|to become again|i
+rediffuser|to rebroadcast|r
+rédiger|to write / to draft|r
+redire|to say again|i
+rediriger|to redirect|r
+redistribuer|to redistribute|r
+redonner|to give back / to give again|r
+redoubler|to repeat a year / to intensify|r
+redouter|to dread|r
+redresser|to straighten|r
+réécrire|to rewrite|i
+rééditer|to republish|r
+rééduquer|to rehabilitate / to re-educate|r
+réélire|to re-elect|i
+rééquilibrer|to rebalance|r
+réessayer|to try again|r
+réévaluer|to reassess|r
+réexaminer|to re-examine|r
+refaire|to redo|i
+référer|to refer|r
+refermer|to close again|r
+refléter|to reflect|r
+refleurir|to flower again|r
+refondre|to overhaul / to recast|r
+réformer|to reform|r
+reformuler|to rephrase|r
+refouler|to push back / to repress|r
+réfrigérer|to refrigerate|r
+refroidir|to cool down|r
+se réfugier|to take refuge|r
+réfuter|to refute|r
+regagner|to regain / to get back to|r
+régaler|to treat|r
+se régaler|to feast / to enjoy|r
+régénérer|to regenerate|r
+régir|to govern|r
+réglementer|to regulate|r
+régler|to settle / to adjust|r
+régner|to reign|r
+regonfler|to reinflate|r
+regorger|to abound in|r
+régresser|to regress|r
+regretter|to regret / to miss|r
+regrouper|to group together|r
+régulariser|to regularise|r
+réguler|to regulate|r
+réhabiliter|to rehabilitate|r
+rehausser|to enhance|r
+réimprimer|to reprint|r
+réinitialiser|to reset|r
+réinstaller|to reinstall|r
+réintégrer|to reinstate|r
+réinventer|to reinvent|r
+réinvestir|to reinvest|r
+réitérer|to reiterate|r
+rejeter|to reject|r
+réjouir|to delight|r
+se réjouir|to rejoice / to be delighted|r
+rejouer|to replay|r
+relâcher|to release / to loosen|r
+relancer|to relaunch / to throw back|r
+relater|to relate|r
+relativiser|to put into perspective|r
+relaxer|to relax|r
+relayer|to relay / to take over from|r
+reléguer|to relegate|r
+relever|to raise / to pick up / to note|r
+relier|to connect|r
+relire|to reread|i
+relooker|to give a makeover|r
+reluire|to shine|i
+remanier|to revise / to reshuffle|r
+se remarier|to remarry|r
+remarquer|to notice|r
+remballer|to pack up again|r
+rembobiner|to rewind|r
+rembourrer|to stuff / to pad|r
+rembourser|to refund|r
+remédier|to remedy|r
+se remémorer|to recall|r
+remodeler|to remodel|r
+remonter|to go back up|r
+remorquer|to tow|r
+remporter|to win / to take back|r
+rempoter|to repot|r
+remuer|to stir / to move|r
+rémunérer|to pay|r
+renaître|to be reborn|i
+renchérir|to add / to go further|r
+se rendormir|to go back to sleep|i
+se rendre|to go / to surrender|r
+renégocier|to renegotiate|r
+renfermer|to contain|r
+renforcer|to reinforce|r
+renier|to disown|r
+renifler|to sniff|r
+renommer|to rename|r
+renoncer|to give up|r
+renouer|to renew (ties) / to retie|r
+renouveler|to renew|r
+rénover|to renovate|r
+renseigner|to inform|r
+se renseigner|to make enquiries|r
+rentabiliser|to make profitable|r
+renverser|to knock over / to overthrow|r
+renvoyer|to send back / to dismiss|i
+réorganiser|to reorganise|r
+réorienter|to reorient / to redirect|r
+repartir|to set off again|i
+répartir|to share out|r
+repasser|to iron / to come by again|r
+repêcher|to fish out|r
+repeindre|to repaint|i
+repenser|to rethink|r
+se repentir|to repent|i
+répercuter|to pass on / to echo|r
+repérer|to spot / to locate|r
+repeupler|to repopulate|r
+replacer|to put back|r
+replanter|to replant|r
+replier|to fold up|r
+répliquer|to reply / to retort|r
+replonger|to dive back / to relapse|r
+reporter|to postpone|r
+reposer|to put back down / to rest|r
+repositionner|to reposition|r
+repousser|to push back / to postpone|r
+représenter|to represent|r
+réprimander|to reprimand|r
+réprimer|to repress|r
+repriser|to darn|r
+reprocher|to reproach|r
+reproduire|to reproduce|i
+reprogrammer|to reprogram / to reschedule|r
+réprouver|to condemn|r
+répugner|to disgust|r
+requérir|to require|i
+réquisitionner|to requisition|r
+résider|to reside|r
+se résigner|to resign oneself|r
+résilier|to terminate (a contract)|r
+résister|to resist|r
+résonner|to resound|r
+resplendir|to shine brightly|r
+responsabiliser|to give responsibility to|r
+se ressaisir|to pull oneself together|r
+resserrer|to tighten|r
+resservir|to serve again|i
+ressortir|to go back out / to stand out|i
+se ressourcer|to recharge one's batteries|r
+ressusciter|to resurrect|r
+restaurer|to restore|r
+restituer|to return / to restore|r
+restreindre|to restrict|i
+restructurer|to restructure|r
+résulter|to result|r
+résumer|to summarise|r
+resurgir|to resurface|r
+rétablir|to restore|r
+se rétablir|to recover|r
+retaper|to do up|r
+retarder|to delay|r
+retenter|to try again|r
+retentir|to ring out|r
+retirer|to withdraw / to take off|r
+retomber|to fall again / to fall back|r
+rétorquer|to retort|r
+retoucher|to touch up / to alter|r
+se retourner|to turn around|r
+retracer|to retrace / to recount|r
+retraiter|to reprocess|r
+retrancher|to deduct|r
+retransmettre|to broadcast|i
+retravailler|to rework|r
+rétrécir|to shrink|r
+rétrograder|to downgrade / to change down|r
+retrousser|to roll up (sleeves)|r
+retrouver|to find again / to meet up with|r
+réunifier|to reunify|r
+se réunir|to meet|r
+réutiliser|to reuse|r
+revaloriser|to upgrade / to raise the value of|r
+rêvasser|to daydream|r
+révéler|to reveal|r
+revendiquer|to claim / to demand|r
+revendre|to resell|r
+reverser|to pay back / to pour again|r
+revêtir|to put on / to take on|i
+revigorer|to invigorate|r
+réviser|to revise / to service|r
+revisiter|to revisit|r
+revitaliser|to revitalise|r
+revivre|to relive / to come alive again|i
+révolter|to revolt / to outrage|r
+révolutionner|to revolutionise|r
+révoquer|to revoke / to dismiss|r
+rhabiller|to dress again|r
+ricaner|to snigger|r
+ricocher|to ricochet|r
+ridiculiser|to ridicule|r
+rigoler|to laugh / to joke|r
+rimer|to rhyme|r
+rincer|to rinse|r
+riposter|to retaliate|r
+rivaliser|to compete|r
+river|to rivet|r
+robotiser|to automate|r
+rôder|to prowl|r
+rogner|to trim|r
+romancer|to romanticise|r
+rompre|to break (off)|i
+ronchonner|to grumble|r
+ronfler|to snore|r
+ronger|to gnaw|r
+ronronner|to purr|r
+rosir|to turn pink|r
+roter|to burp|r
+rôtir|to roast|r
+roucouler|to coo|r
+rouiller|to rust|r
+rouspéter|to grumble|r
+roussir|to scorch / to turn brown|r
+rouvrir|to reopen|i
+ruer|to kick (horse)|r
+se ruer|to rush|r
+rugir|to roar|r
+ruiner|to ruin|r
+ruisseler|to stream|r
+ruminer|to ruminate / to brood over|r
+ruser|to use cunning|r
+rythmer|to give rhythm to / to punctuate|r
+saboter|to sabotage|r
+sabrer|to slash|r
+saccager|to wreck|r
+sacrer|to crown / to consecrate|r
+sacrifier|to sacrifice|r
+saigner|to bleed|r
+saler|to salt|r
+saliver|to salivate|r
+sanctifier|to sanctify|r
+sanctionner|to punish / to sanction|r
+sangler|to strap|r
+sangloter|to sob|r
+saper|to undermine|r
+saturer|to saturate|r
+saucer|to mop up (sauce)|r
+saupoudrer|to sprinkle|r
+sauvegarder|to save (a file) / to safeguard|r
+se sauver|to run off|r
+savonner|to soap|r
+savourer|to savour|r
+scandaliser|to shock|r
+scander|to chant|r
+scanner|to scan|r
+sceller|to seal|r
+schématiser|to schematise / to oversimplify|r
+scier|to saw|r
+scinder|to split|r
+scintiller|to twinkle|r
+scolariser|to send to school|r
+scotcher|to tape|r
+scruter|to scrutinise|r
+sculpter|to sculpt|r
+se sécher|to dry oneself|r
+secouer|to shake|r
+secourir|to rescue|i
+sécuriser|to make safe / to secure|r
+segmenter|to segment|r
+séjourner|to stay|r
+sélectionner|to select|r
+seller|to saddle|r
+semer|to sow|r
+sensibiliser|to raise awareness|r
+se sentir|to feel|i
+se séparer|to split up|r
+séquencer|to sequence|r
+sermonner|to lecture|r
+serpenter|to wind (road, river)|r
+se servir|to use / to help oneself|i
+sévir|to crack down / to be rife|r
+shampouiner|to shampoo|r
+sidérer|to stagger|r
+siéger|to sit (in an assembly)|r
+siffloter|to whistle softly|r
+signaler|to report / to point out|r
+signifier|to mean|r
+sillonner|to criss-cross|r
+simplifier|to simplify|r
+simuler|to simulate|r
+siphonner|to siphon|r
+siroter|to sip|r
+situer|to locate|r
+skier|to ski|r
+slalomer|to slalom|r
+snober|to snub|r
+socialiser|to socialise|r
+solder|to sell off|r
+solidifier|to solidify|r
+solliciter|to request / to appeal to|r
+solutionner|to solve|r
+sombrer|to sink|r
+sommeiller|to doze|r
+sommer|to summon / to order|r
+somnoler|to doze|r
+sonder|to probe / to poll|r
+se soucier|to care about|r
+souder|to weld|r
+soudoyer|to bribe|r
+souiller|to soil|r
+soulager|to relieve|r
+soulever|to lift / to raise|r
+soupçonner|to suspect|r
+souper|to have supper|r
+soupeser|to weigh up|r
+soupirer|to sigh|r
+sourciller|to bat an eyelid|r
+souscrire|to subscribe|i
+sous-entendre|to imply|r
+sous-estimer|to underestimate|r
+sous-évaluer|to undervalue|r
+sous-louer|to sublet|r
+sous-payer|to underpay|r
+sous-tendre|to underlie|r
+sous-titrer|to subtitle|r
+sous-traiter|to subcontract|r
+soustraire|to subtract|i
+se spécialiser|to specialise|r
+spécifier|to specify|r
+spéculer|to speculate|r
+sponsoriser|to sponsor|r
+sprinter|to sprint|r
+squatter|to squat (a building)|r
+stabiliser|to stabilise|r
+stagner|to stagnate|r
+standardiser|to standardise|r
+stationner|to park|r
+stériliser|to sterilise|r
+stigmatiser|to stigmatise|r
+stimuler|to stimulate|r
+stipuler|to stipulate|r
+stocker|to store|r
+stopper|to stop|r
+stresser|to stress|r
+structurer|to structure|r
+stupéfier|to astound|r
+styliser|to stylise|r
+subdiviser|to subdivide|r
+sublimer|to sublimate / to transcend|r
+submerger|to submerge / to overwhelm|r
+subsister|to subsist / to remain|r
+substituer|to substitute|r
+subtiliser|to steal / to spirit away|r
+subvenir|to provide for|i
+subventionner|to subsidise|r
+succéder|to succeed (follow)|r
+succomber|to succumb|r
+sucer|to suck|r
+sucrer|to sweeten|r
+suer|to sweat|r
+suffoquer|to suffocate|r
+suggérer|to suggest|r
+se suicider|to commit suicide|r
+superposer|to stack / to superimpose|r
+superviser|to supervise|r
+supplier|to beg|r
+supporter|to bear / to put up with|r
+supprimer|to delete / to abolish|r
+surcharger|to overload|r
+surchauffer|to overheat|r
+surclasser|to outclass / to upgrade|r
+surenchérir|to outbid / to go one better|r
+surestimer|to overestimate|r
+surévaluer|to overvalue|r
+surexploiter|to overexploit|r
+surexposer|to overexpose|r
+surfer|to surf|r
+surgeler|to deep-freeze|r
+surgir|to appear suddenly|r
+surjouer|to overact|r
+surligner|to highlight|r
+surmener|to overwork|r
+surmonter|to overcome|r
+surnommer|to nickname|r
+surpasser|to surpass|r
+surpayer|to overpay|r
+surplomber|to overhang|r
+surprotéger|to overprotect|r
+sursauter|to jump (with surprise)|r
+surveiller|to watch over / to supervise|r
+survenir|to occur|i
+survoler|to fly over|r
+susciter|to arouse / to give rise to|r
+suspecter|to suspect|r
+suturer|to stitch up|r
+symboliser|to symbolise|r
+sympathiser|to get on well|r
+synchroniser|to synchronise|r
+se syndiquer|to join a union|r
+systématiser|to systematise|r
+tabasser|to beat up|r
+tabler|to count on|r
+tacher|to stain|r
+tâcher|to try / to endeavour|r
+taguer|to tag (graffiti)|r
+tailler|to cut / to prune / to sharpen|r
+taire|to keep quiet about|i
+talonner|to follow closely|r
+tambouriner|to drum|r
+tamiser|to sift / to dim|r
+tamponner|to stamp / to dab / to crash into|r
+tanguer|to pitch (ship)|r
+tanner|to tan (leather)|r
+taper|to hit / to type|r
+se tapir|to crouch / to hide|r
+tapisser|to wallpaper|r
+tapoter|to tap / to pat|r
+taquiner|to tease|r
+tarder|to delay / to be long|r
+tarir|to dry up|r
+tartiner|to spread (on bread)|r
+tasser|to pack down|r
+tâter|to feel (by touch)|r
+tâtonner|to grope around|r
+tatouer|to tattoo|r
+taxer|to tax|r
+teindre|to dye|i
+teinter|to tint|r
+télécharger|to download|r
+télécommander|to operate by remote control|r
+télescoper|to concertina / to crash into|r
+télétravailler|to work from home|r
+téléviser|to televise|r
+témoigner|to testify|r
+tempérer|to temper / to moderate|r
+tempêter|to rage|r
+temporiser|to play for time|r
+se tenir|to stand / to behave|i
+ternir|to tarnish|r
+terrasser|to strike down / to floor|r
+se terrer|to hide away|r
+terrifier|to terrify|r
+terroriser|to terrorise|r
+tester|to test|r
+téter|to suckle|r
+théoriser|to theorise|r
+tiédir|to become lukewarm|r
+timbrer|to stamp|r
+tinter|to ring / to chime|r
+tiquer|to wince|r
+tisser|to weave|r
+titiller|to tickle / to tease|r
+titrer|to give a title to / to headline|r
+tituber|to stagger|r
+toiletter|to groom|r
+tolérer|to tolerate|r
+tondre|to mow / to shear|r
+tonifier|to tone up|r
+tonner|to thunder|r
+toquer|to knock|r
+torpiller|to torpedo|r
+tortiller|to twist / to wriggle|r
+torturer|to torture|r
+totaliser|to total|r
+tourmenter|to torment|r
+tournoyer|to whirl|r
+tracasser|to worry|r
+tracer|to draw (a line) / to trace|r
+trafiquer|to traffic / to tamper with|r
+traîner|to drag / to hang around|r
+traire|to milk|i
+traiter|to treat / to deal with|r
+tramer|to plot / to weave|r
+trancher|to slice / to decide|r
+tranquilliser|to reassure|r
+transcender|to transcend|r
+transcrire|to transcribe|i
+transférer|to transfer|r
+transfigurer|to transfigure|r
+transformer|to transform|r
+transfuser|to transfuse|r
+transgresser|to break (a rule)|r
+transiter|to pass through|r
+transparaître|to show through|i
+transpercer|to pierce through|r
+transpirer|to sweat|r
+transplanter|to transplant|r
+transporter|to transport|r
+transposer|to transpose|r
+traquer|to hunt down|r
+traumatiser|to traumatise|r
+travestir|to disguise / to misrepresent|r
+trébucher|to trip|r
+trembler|to tremble|r
+se trémousser|to wiggle|r
+tremper|to soak / to dip|r
+trépasser|to pass away|r
+tressaillir|to give a start / to quiver|i
+tresser|to plait|r
+tricoter|to knit|r
+trier|to sort|r
+trimbaler|to cart around|r
+trinquer|to clink glasses|r
+triompher|to triumph|r
+tripler|to triple|r
+tripoter|to fiddle with|r
+se tromper|to be mistaken|r
+trôner|to take pride of place|r
+tronquer|to truncate|r
+troquer|to swap|r
+trotter|to trot|r
+trottiner|to scamper|r
+troubler|to disturb / to trouble|r
+trouer|to make a hole in|r
+se trouver|to be located|r
+truffer|to pepper / to stuff with|r
+truquer|to rig|r
+tutoyer|to address as "tu"|r
+tyranniser|to tyrannise|r
+unifier|to unify|r
+uniformiser|to standardise|r
+urbaniser|to urbanise|r
+uriner|to urinate|r
+user|to wear out|r
+usurper|to usurp|r
+vacciner|to vaccinate|r
+vaciller|to flicker / to wobble|r
+vadrouiller|to roam around|r
+vagabonder|to roam|r
+valider|to validate|r
+valoriser|to enhance the value of|r
+valser|to waltz|r
+vandaliser|to vandalise|r
+vanter|to praise|r
+se vanter|to boast|r
+vaporiser|to spray|r
+varier|to vary|r
+végéter|to vegetate|r
+véhiculer|to convey|r
+veiller|to stay up / to watch over|r
+vendanger|to harvest grapes|r
+vénérer|to revere|r
+venger|to avenge|r
+se venger|to take revenge|r
+venter|to be windy|r
+ventiler|to ventilate|r
+verbaliser|to fine / to verbalise|r
+verdir|to turn green|r
+vernir|to varnish|r
+verrouiller|to lock|r
+vêtir|to dress|i
+vexer|to offend|r
+vibrer|to vibrate|r
+vidanger|to drain / to change the oil|r
+virer|to transfer (money) / to fire / to turn|r
+virevolter|to twirl|r
+visionner|to view|r
+visser|to screw|r
+visualiser|to visualise|r
+vitrer|to glaze|r
+voiler|to veil|r
+se volatiliser|to vanish into thin air|r
+voltiger|to flit about|r
+vomir|to vomit|r
+vouer|to devote / to vow|r
+vouvoyer|to address as "vous"|r
+vrombir|to roar / to hum|r
+vulgariser|to popularise|r
+zapper|to channel-hop|r
+zigzaguer|to zigzag|r
+zoomer|to zoom|r
+s'en aller|to go away|i
+pacifier|to pacify|r
+pactiser|to make a pact|r
+paître|to graze|i
+pallier|to compensate for|r
+palpiter|to throb / to flutter|r
+paner|to coat with breadcrumbs|r
+papillonner|to flit about|r
+parachever|to complete / to perfect|r
+paraphraser|to paraphrase|r
+parasiter|to interfere with / to live off|r
+parfaire|to perfect|i
+parlementer|to negotiate / to parley|r
+parodier|to parody|r
+pérenniser|to make lasting|r
+péricliter|to be in decline|r
+perquisitionner|to search (premises)|r
+piaffer|to stamp / to be impatient|r
+pinailler|to quibble|r
+pistonner|to pull strings for|r
+plébisciter|to approve overwhelmingly|r
+ployer|to bend / to sag|r
+poireauter|to hang about waiting|r
+polémiquer|to argue / to be polemical|r
+se pomponner|to doll oneself up|r
+postillonner|to splutter|r
+potasser|to swot up|r
+pouponner|to play the doting parent|r
+prédestiner|to predestine|r
+préfigurer|to foreshadow|r
+prémunir|to protect / to guard|r
+présager|to foreshadow / to predict|r
+prodiguer|to lavish|r
+proférer|to utter|r
+promulguer|to promulgate|r
+proroger|to extend / to defer|r
+pulluler|to swarm / to proliferate|r
+punaiser|to pin up|r
+quintupler|to increase fivefold|r
+rabrouer|to snub|r
+racketter|to extort from|r
+ragaillardir|to perk up|r
+raréfier|to make scarce|r
+receler|to harbour / to conceal|r
+réfréner|to curb|r
+renâcler|to balk / to show reluctance|r
+renflouer|to bail out / to refloat|r
+requinquer|to perk up|r
+résorber|to absorb / to reduce|r
+resquiller|to sneak in / to fare-dodge|r
+ressasser|to keep going over|r
+réverbérer|to reverberate|r
+révulser|to revolt / to disgust|r
+rosser|to thrash|r
+rougeoyer|to glow red|r
+rudoyer|to treat harshly|r
+saborder|to scuttle|r
+sarcler|to weed / to hoe|r
+séquestrer|to confine illegally / to sequester|r
+sertir|to set (a gem)|r
+soutirer|to extract (money, information)|r
+spolier|to despoil|r
+subodorer|to suspect / to sense|r
+suinter|to ooze|r
+surnager|to float / to survive|r
+susurrer|to whisper|r
+tarifer|to price|r
+tenailler|to torment|r
+tergiverser|to prevaricate / to dither|r
+tétaniser|to paralyse (with fear)|r
+tirailler|to pull at / to plague|r
+titulariser|to give tenure to|r
+toiser|to look up and down|r
+torréfier|to roast (coffee)|r
+transiger|to compromise|r
+transvaser|to decant|r
+trépigner|to stamp one's feet|r
+triturer|to fiddle with / to grind|r
+tronçonner|to cut into sections|r
+usiner|to machine|r
+vaquer|to attend to (one's business)|r
+vivoter|to scrape by|r
+voleter|to flutter|r
+s'assoupir|to doze off|r
+assouplir|to soften / to relax|r
+assourdir|to deafen|r
+astiquer|to polish|r
+attendrir|to move / to tenderise|r
+attester|to attest|r
+attiser|to stoke|r
+auditionner|to audition|r
+avantager|to favour|r
+aviser|to notify|r
+avorter|to abort|r
+badigeonner|to daub / to brush|r
+bafouer|to flout|r
+baliser|to mark out|r
+banaliser|to trivialise|r
+bander|to bandage|r
+barbouiller|to smear|r
+barricader|to barricade|r
+batailler|to battle|r
+bêcher|to dig|r
+bifurquer|to fork / to branch off|r
+blêmir|to turn pale|r
+borner|to limit|r
+botter|to kick|r
+bouillonner|to bubble|r
+bourgeonner|to bud|r
+brader|to sell off cheaply|r
+brandir|to brandish|r
+brasser|to brew / to stir|r
+braver|to defy|r
+breveter|to patent|r
+brider|to curb|r
+broncher|to flinch|r
+brouter|to graze|r
+broyer|to crush / to grind|r
+brusquer|to rush (someone)|r
+bûcher|to swot|r
+buter|to stumble|r
+câbler|to wire|r
+cabosser|to dent|r
+cadenasser|to padlock|r
+calibrer|to calibrate|r
+calomnier|to slander|r
+calquer|to trace / to copy|r
+cantonner|to confine|r
+capoter|to overturn / to fall through|r
+caraméliser|to caramelise|r
+carboniser|to char|r
+carreler|to tile|r
+cartographier|to map|r
+cataloguer|to catalogue|r
+cautionner|to vouch for|r
+centraliser|to centralise|r
+chagriner|to grieve|r
+chambouler|to turn upside down|r
+chanceler|to stagger|r
+châtier|to chastise|r
+chausser|to put on (shoes)|r
+cheminer|to walk along|r
+chevaucher|to ride / to overlap|r
+chiffonner|to crumple|r
+chiper|to pinch (steal)|r
+choyer|to pamper|r
+chômer|to be out of work|r
+chronométrer|to time|r
+cicatriser|to heal over|r
+circonscrire|to contain / to limit|i
+civiliser|to civilise|r
+clamer|to proclaim|r
+coaguler|to coagulate|r
+coexister|to coexist|r
+cogiter|to ponder|r
+colmater|to plug (a leak)|r
+colporter|to peddle / to spread|r
+commanditer|to sponsor / to finance|r
+commémorer|to commemorate|r
+comparaître|to appear (in court)|i
+compiler|to compile|r
+comprimer|to squeeze / to compress|r
+concasser|to crush|r
+concorder|to match / to tally|r
+concurrencer|to compete with|r
+conférer|to confer|r
+congédier|to dismiss|r
+consigner|to record / to deposit|r
+conspirer|to conspire|r
+consterner|to dismay|r
+consumer|to burn up|r
+contrebalancer|to counterbalance|r
+contrecarrer|to thwart|r
+contrefaire|to counterfeit|i
+contrevenir|to contravene|i
+converger|to converge|r
+convier|to invite|r
+convoiter|to covet|r
+convoyer|to escort|r
+corroborer|to corroborate|r
+corroder|to corrode|r
+cotiser|to pay contributions|r
+côtoyer|to rub shoulders with|r
+couiner|to squeal|r
+coulisser|to slide|r
+coupler|to couple|r
+court-circuiter|to short-circuit|r
+courtiser|to court|r
+couver|to brood / to hatch|r
+se cramponner|to cling|r
+crâner|to show off|r
+crayonner|to pencil / to sketch|r
+crépiter|to crackle|r
+crisper|to tense|r
+crisser|to screech / to crunch|r
+croasser|to caw|r
+crouler|to collapse|r
+croupir|to stagnate|r
+culbuter|to tumble|r
+culminer|to culminate|r
+cumuler|to accumulate / to hold concurrently|r
+daigner|to deign|r
+débiter|to debit|r
+déblayer|to clear away|r
+déboiser|to deforest|r
+déboîter|to dislocate / to pull out|r
+débourser|to pay out|r
+débroussailler|to clear (undergrowth)|r
+débusquer|to flush out|r
+décaper|to strip (paint)|r
+décapiter|to behead|r
+décentraliser|to decentralise|r
+décerner|to award|r
+décimer|to decimate|r
+déclasser|to downgrade|r
+décolorer|to bleach|r
+décompter|to deduct / to count|r
+déconcentrer|to distract|r
+décortiquer|to shell / to dissect|r
+décréter|to decree|r
+décroître|to decrease|i
+décupler|to increase tenfold|r
+dédaigner|to scorn|r
+dédommager|to compensate|r
+dédramatiser|to play down|r
+défaillir|to faint / to fail|i
+déferler|to surge / to break (waves)|r
+défricher|to clear (land)|r
+défroisser|to smooth out|r
+dégainer|to draw (a weapon)|r
+dégivrer|to de-ice|r
+déglutir|to swallow|r
+dégouliner|to drip / to trickle|r
+dégourdir|to stretch (one's legs)|r
+dégraisser|to remove grease / to trim|r
+déguerpir|to clear off|r
+déjouer|to foil|r
+délasser|to relax|r
+se délecter|to relish|r
+délier|to untie|r
+délocaliser|to relocate (offshore)|r
+déloger|to dislodge|r
+démanteler|to dismantle|r
+démarcher|to canvass|r
+se démener|to struggle / to exert oneself|r
+démocratiser|to democratise|r
+démouler|to turn out (of a mould)|r
+dénaturer|to distort|r
+dénigrer|to denigrate|r
+dénombrer|to count|r
+dénoter|to denote|r
+dénoyauter|to pit / to stone|r
+dénuder|to strip bare|r
+départager|to decide between|r
+dépêcher|to dispatch|r
+dépeindre|to depict|i
+dépénaliser|to decriminalise|r
+dépérir|to waste away|r
+dépeupler|to depopulate|r
+dépolluer|to clean up (pollution)|r
+déporter|to deport|r
+déposséder|to dispossess|r
+dépoussiérer|to dust|r
+déprécier|to depreciate / to belittle|r
+déraciner|to uproot|r
+dérégler|to upset / to put out of order|r
+désaltérer|to quench the thirst of|r
+désamorcer|to defuse|r
+désapprendre|to unlearn|i
+désavantager|to put at a disadvantage|r
+déséquilibrer|to unbalance|r
+déshériter|to disinherit|r
+déshonorer|to dishonour|r
+se désintéresser|to lose interest|r
+désintoxiquer|to detoxify|r
+se désister|to withdraw|r
+désosser|to bone|r
+destituer|to dismiss (from office)|r
+désunir|to divide|r
+détartrer|to descale|r
+déteindre|to run (colour) / to fade|i
+détrôner|to dethrone|r
+dévaler|to hurtle down|r
+dévaloriser|to devalue|r
+dévêtir|to undress|i
+diaboliser|to demonise|r
+diffamer|to defame|r
+dilapider|to squander|r
+dilater|to dilate|r
+discourir|to hold forth|i
+disloquer|to dislocate / to break up|r
+distendre|to stretch|r
+distiller|to distil|r
+divaguer|to ramble|r
+domestiquer|to domesticate|r
+doper|to dope / to boost|r
+dorer|to gild / to brown|r
+doter|to endow / to equip|r
+draper|to drape|r
+dribbler|to dribble|r
+duper|to dupe|r
+dynamiser|to energise|r
+dynamiter|to dynamite|r
+ébouillanter|to scald|r
+ébouriffer|to ruffle|r
+ébruiter|to spread (news)|r
+écailler|to scale (fish) / to flake|r
+écarquiller|to open (one's eyes) wide|r
+échafauder|to construct (a plan)|r
+échelonner|to stagger / to space out|r
+écoper|to bail out / to cop|r
+écosser|to shell (peas)|r
+écourter|to cut short|r
+écrémer|to skim|r
+écumer|to skim / to foam|r
+édifier|to build / to edify|r
+édulcorer|to sweeten / to water down|r
+effaroucher|to scare off|r
+effriter|to crumble|r
+élaguer|to prune|r
+électriser|to electrify|r
+émanciper|to emancipate|r
+émaner|to emanate|r
+emboîter|to fit together|r
+embraser|to set ablaze|r
+embrayer|to engage the clutch|r
+embuer|to mist up|r
+émietter|to crumble|r
+emmagasiner|to store up|r
+emmitoufler|to wrap up warmly|r
+émousser|to blunt|r
+empester|to stink out|r
+empiéter|to encroach|r
+empocher|to pocket|r
+encenser|to praise lavishly|r
+enclencher|to engage / to set in motion|r
+encoder|to encode|r
+encourir|to incur|i
+encrasser|to clog up|r
+encrer|to ink|r
+enduire|to coat|i
+enfanter|to give birth to|r
+enfourcher|to mount (a bike, a horse)|r
+enfourner|to put in the oven|r
+enfumer|to fill with smoke|r
+s'engouffrer|to rush into|r
+engranger|to store / to reap|r
+enhardir|to embolden|r
+enivrer|to intoxicate|r
+enjoindre|to enjoin|i
+enjoliver|to embellish|r
+enlaidir|to make ugly|r
+s'enliser|to get bogged down|r
+enquiquiner|to pester|r
+enrayer|to check / to jam|r
+enrober|to coat|r
+enrôler|to enlist|r
+ensevelir|to bury|r
+ensorceler|to bewitch|r
+s'ensuivre|to follow / to ensue|i
+entacher|to taint|r
+entailler|to gash|r
+entériner|to ratify|r
+entonner|to strike up (a song)|r
+entremêler|to intermingle|r
+envenimer|to inflame / to aggravate|r
+envoûter|to bewitch|r
+épauler|to support / to back up|r
+épingler|to pin|r
+épousseter|to dust|r
+s'éprendre|to fall in love|i
+épurer|to purify|r
+équivaloir|to be equivalent|i
+érafler|to scratch / to graze|r
+éreinter|to exhaust|r
+ériger|to erect|r
+éroder|to erode|r
+escamoter|to make disappear|r
+escompter|to count on / to discount|r
+esquinter|to ruin / to wreck|r
+estomper|to blur|r
+estropier|to cripple|r
+étalonner|to calibrate|r
+étayer|to support / to back up|r
+s'éterniser|to drag on|r
+étrenner|to use for the first time|r
+évider|to hollow out|r
+évincer|to oust|r
+exacerber|to exacerbate|r
+exécrer|to loathe|r
+exhaler|to exhale|r
+exhumer|to exhume|r
+exonérer|to exempt (from tax)|r
+expatrier|to expatriate|r
+expertiser|to appraise|r
+expier|to atone for|r
+expliciter|to make explicit|r
+exproprier|to expropriate|r
+s'extasier|to go into raptures|r
+exténuer|to exhaust|r
+extérioriser|to express (outwardly)|r
+extirper|to extract / to root out|r
+extorquer|to extort|r
+extrader|to extradite|r
+extrapoler|to extrapolate|r
+exulter|to exult|r
+fariner|to flour|r
+féconder|to fertilise (an egg)|r
+fédérer|to federate / to unite|r
+feinter|to feint|r
+festoyer|to feast|r
+ficeler|to tie up|r
+fidéliser|to build loyalty|r
+fignoler|to add the finishing touches to|r
+flancher|to give way|r
+flécher|to signpost|r
+fluctuer|to fluctuate|r
+focaliser|to focus|r
+foisonner|to abound|r
+fomenter|to stir up|r
+forer|to drill|r
+formaliser|to formalise|r
+foudroyer|to strike down|r
+fourmiller|to swarm|r
+franciser|to gallicise|r
+fraterniser|to fraternise|r
+frictionner|to rub|r
+frigorifier|to refrigerate|r
+fructifier|to bear fruit|r
+fulminer|to fulminate|r
+fureter|to ferret about|r
+fuser|to burst forth|r
+fustiger|to castigate|r
+gager|to wager|r
+galvaniser|to galvanise|r
+gambader|to frolic|r
+se gargariser|to gargle|r
+gargouiller|to gurgle / to rumble|r
+gaver|to force-feed|r
+geindre|to whine|i
+gercer|to chap|r
+givrer|to frost over|r
+glaner|to glean|r
+glapir|to yelp|r
+glorifier|to glorify|r
+graduer|to graduate (a scale)|r
+gratifier|to reward|r
+gratiner|to brown (with cheese)|r
+graviter|to orbit / to gravitate|r
+grésiller|to sizzle / to crackle|r
+griser|to intoxicate / to exhilarate|r
+grisonner|to go grey|r
+grouiller|to swarm|r
+guillotiner|to guillotine|r
+happer|to snap up / to hit|r
+haranguer|to harangue|r
+harnacher|to harness|r
+harponner|to harpoon|r
+hasarder|to venture|r
+héler|to hail|r
+hennir|to neigh|r
+hérisser|to bristle|r
+hiverner|to winter|r
+homologuer|to approve officially|r
+hoqueter|to hiccup|r
+hululer|to hoot|r
+humaniser|to humanise|r
+hypothéquer|to mortgage|r
+idolâtrer|to idolise|r
+imbiber|to soak|r
+imbriquer|to overlap / to interlock|r
+immoler|to immolate|r
+immortaliser|to immortalise|r
+imperméabiliser|to waterproof|r
+imploser|to implode|r
+importuner|to bother|r
+imprégner|to impregnate / to permeate|r
+imputer|to attribute / to charge|r
+incarcérer|to incarcerate|r
+incinérer|to incinerate|r
+inciser|to make an incision in|r
+incomber|to fall to (as a duty)|r
+incommoder|to bother|r
+incruster|to inlay / to embed|r
+inculquer|to instil|r
+indexer|to index|r
+indisposer|to upset / to make unwell|r
+industrialiser|to industrialise|r
+infirmer|to invalidate|r
+infléchir|to bend / to shift|r
+influer|to have an influence|r
+informatiser|to computerise|r
+inhiber|to inhibit|r
+inhumer|to bury (a body)|r
+initialiser|to initialise|r
+insonoriser|to soundproof|r
+insuffler|to breathe (life) into|r
+s'insurger|to rise up / to protest|r
+intenter|to bring (a lawsuit)|r
+intercaler|to insert (between)|r
+intercéder|to intercede|r
+intérioriser|to internalise|r
+interner|to commit (to an institution)|r
+interposer|to interpose|r
+invalider|to invalidate|r
+inventorier|to inventory|r
+ironiser|to be ironic|r
+irradier|to irradiate|r
+jacasser|to chatter|r
+jalonner|to mark out / to punctuate|r
+jalouser|to be jealous of|r
+japper|to yap|r
+jaser|to gossip|r
+jauger|to gauge|r
+joncher|to litter / to strew|r
+jubiler|to be jubilant|r
+jucher|to perch|r
+jumeler|to twin|r
+lacérer|to slash / to tear up|r
+laper|to lap up|r
+lapider|to stone|r
+laquer|to lacquer|r
+légiférer|to legislate|r
+légitimer|to legitimise|r
+lessiver|to wash down|r
+lester|to ballast|r
+leurrer|to delude|r
+lézarder|to bask / to crack|r
+libéraliser|to liberalise|r
+limoger|to dismiss|r
+liquéfier|to liquefy|r
+louvoyer|to tack / to hedge|r
+lustrer|to polish / to make shiny|r
+macérer|to steep|r
+magnifier|to glorify|r
+majorer|to increase (a price)|r
+malaxer|to knead / to mix|r
+mandater|to mandate|r
+manigancer|to scheme|r
+marginaliser|to marginalise|r
+martyriser|to torment|r
+mastiquer|to chew thoroughly|r
+matérialiser|to make real / to materialise|r
+matraquer|to club / to bombard (with ads)|r
+mécaniser|to mechanise|r
+médiatiser|to give media coverage to|r
+médire|to speak ill of|i
+méduser|to dumbfound|r
+se méprendre|to be mistaken|i
+meugler|to moo|r
+militariser|to militarise|r
+miroiter|to shimmer|r
+mitonner|to cook lovingly|r
+modéliser|to model (data)|r
+moduler|to modulate|r
+molester|to manhandle|r
+mondialiser|to globalise|r
+monnayer|to convert into cash|r
+se morfondre|to mope|r
+mortifier|to mortify|r
+motoriser|to motorise|r
+moucharder|to snitch|r
+mousser|to foam|r
+mugir|to bellow|r
+mutualiser|to pool|r
+mystifier|to fool|r
+napper|to coat (with sauce)|r
+natter|to plait|r
+naturaliser|to naturalise|r
+nicher|to nest|r
+niveler|to level|r
+nominer|to nominate|r
+obliquer|to turn off (a road)|r
+oblitérer|to cancel (a stamp)|r
+obnubiler|to obsess|r
+obtempérer|to comply|r
+obturer|to seal / to block|r
+occulter|to conceal / to overlook|r
+œuvrer|to work (towards)|r
+officier|to officiate|r
+offusquer|to offend|r
+ombrager|to shade|r
+ondoyer|to undulate|r
+opiner|to nod (agreement)|r
+oppresser|to oppress / to weigh on|r
+ourler|to hem|r
+outiller|to equip (with tools)|r
+outrepasser|to exceed / to overstep|r
+ovationner|to give an ovation to|r
+oxygéner|to oxygenate|r
+abasourdir|to stun|r
+abdiquer|to abdicate|r
+abhorrer|to abhor|r
+abjurer|to renounce|r
+abominer|to loathe|r
+abraser|to abrade|r
+abreuver|to water (animals) / to shower with|r
+abroger|to repeal|r
+abrutir|to dull the mind of / to exhaust|r
+absoudre|to absolve|i
+abstraire|to abstract|i
+accaparer|to monopolise / to hog|r
+accidenter|to damage (in an accident)|r
+acclamer|to cheer|r
+acclimater|to acclimatise|r
+accoler|to place side by side|r
+accommoder|to adapt / to prepare (food)|r
+accoster|to dock / to accost|r
+accoupler|to couple / to mate|r
+accoutrer|to dress up oddly|r
+accoutumer|to accustom|r
+accréditer|to accredit|r
+acculer|to drive into a corner|r
+s'acharner|to persist relentlessly|r
+acidifier|to acidify|r
+acquiescer|to acquiesce|r
+acter|to record formally|r
+adjuger|to award (at auction)|r
+adjurer|to implore|r
+admonester|to admonish|r
+adosser|to lean (something) against|r
+adouber|to dub (a knight)|r
+aduler|to adulate|r
+advenir|to happen|i
+affabuler|to make things up|r
+affadir|to make bland|r
+s'affaisser|to subside / to slump|r
+s'affaler|to slump / to flop down|r
+s'affairer|to bustle about|r
+affectionner|to be fond of|r
+affilier|to affiliate|r
+affiner|to refine / to mature (cheese)|r
+affleurer|to show on the surface|r
+affluer|to flock / to pour in|r
+affréter|to charter|r
+affubler|to deck out|r
+affûter|to sharpen|r
+agencer|to arrange / to lay out|r
+agglomérer|to agglomerate|r
+agglutiner|to stick together|r
+agoniser|to be dying|r
+agrémenter|to embellish|r
+agréger|to aggregate|r
+aguerrir|to harden / to season|r
+aguicher|to tease / to entice|r
+ahurir|to dumbfound|r
+aigrir|to embitter|r
+aiguiller|to direct / to steer|r
+aiguillonner|to spur on|r
+aimanter|to magnetise|r
+ajourner|to adjourn|r
+alanguir|to make languid|r
+alcooliser|to add alcohol to|r
+aliéner|to alienate|r
+aliter|to confine to bed|r
+allécher|to tempt|r
+alléguer|to allege / to put forward|r
+allier|to combine / to ally|r
+allouer|to allocate|r
+alphabétiser|to teach literacy to|r
+alunir|to land on the moon|r
+amadouer|to coax|r
+amaigrir|to make thin|r
+amalgamer|to amalgamate / to lump together|r
+amarrer|to moor|r
+ambitionner|to aspire to|r
+amender|to amend|r
+amenuiser|to diminish|r
+américaniser|to americanise|r
+amerrir|to land on water|r
+ameuter|to rouse / to bring running|r
+amidonner|to starch|r
+amnistier|to grant amnesty to|r
+amocher|to mess up (informal)|r
+amoindrir|to lessen|r
+amollir|to soften|r
+amonceler|to pile up|r
+s'amouracher|to become infatuated|r
+angliciser|to anglicise|r
+angoisser|to distress / to cause anxiety|r
+ankyloser|to stiffen|r
+anoblir|to ennoble|r
+ânonner|to read haltingly|r
+antidater|to backdate|r
+apeurer|to frighten|r
+apostropher|to shout at / to address sharply|r
+appareiller|to cast off / to fit (with a device)|r
+s'apparenter|to be similar to|r
+apparier|to pair|r
+appâter|to lure / to bait|r
+appesantir|to weigh down|r
+apposer|to affix|r
+appréhender|to dread / to arrest|r
+apprêter|to prepare / to get ready|r
+s'approprier|to appropriate|r
+argenter|to silver|r
+arguer|to argue / to claim|r
+arnaquer|to rip off / to swindle|r
+aromatiser|to flavour|r
+arquer|to arch / to bend|r
+arraisonner|to board and inspect (a ship)|r
+arrimer|to secure / to stow|r
+s'arroger|to assume (a right) without authority|r
+aseptiser|to sanitise|r
+asphalter|to asphalt|r
+assagir|to quieten down / to make wiser|r
+assainir|to clean up / to purify|r
+assécher|to drain / to dry out|r
+asséner|to strike (a blow)|r
+assermenter|to swear in|r
+assoiffer|to make thirsty|r
+assujettir|to subject / to subjugate|r
+asticoter|to needle (informal)|r
+astreindre|to compel|i
+atomiser|to atomise|r
+atrophier|to atrophy|r
+s'attabler|to sit down at the table|r
+atteler|to harness / to hitch up|r
+attenter|to make an attempt on|r
+atterrer|to appal|r
+s'attrouper|to gather in a crowd|r
+auditer|to audit|r
+augurer|to foresee / to bode|r
+auréoler|to crown with glory|r
+ausculter|to examine (with a stethoscope)|r
+authentifier|to authenticate|r
+s'autodétruire|to self-destruct|i
+autofinancer|to self-finance|r
+s'autoproclamer|to proclaim oneself|r
+autopsier|to perform an autopsy on|r
+s'avachir|to slouch|r
+avaliser|to endorse|r
+avarier|to spoil / to damage|r
+s'avérer|to turn out (to be)|r
+avilir|to debase|r
+aviver|to brighten / to sharpen|r
+avoisiner|to be close to|r
+axer|to centre / to focus|r
+babiller|to babble|r
+bachoter|to cram (for an exam)|r
+bâcher|to cover with a tarpaulin|r
+badiner|to jest|r
+bâfrer|to guzzle|r
+baguenauder|to dawdle|r
+baguer|to ring (a bird)|r
+bâillonner|to gag|r
+balafrer|to scar / to slash|r
+ballonner|to bloat|r
+ballotter|to toss about|r
+banqueter|to feast|r
+baragouiner|to jabber / to speak badly|r
+baratiner|to sweet-talk|r
+barboter|to paddle / to splash about|r
+barioler|to daub with bright colours|r
+batifoler|to frolic|r
+bavasser|to natter|r
+bazarder|to chuck out (informal)|r
+béatifier|to beatify|r
+bécoter|to smooch|r
+becqueter|to peck|r
+bêler|to bleat|r
+bétonner|to concrete|r
+beugler|to bellow / to moo|r
+biaiser|to hedge / to skew|r
+bichonner|to pamper / to groom|r
+bidouiller|to tinker with|r
+biffer|to cross out|r
+biner|to hoe|r
+biper|to beep / to page|r
+biseauter|to bevel|r
+bisser|to encore|r
+bitumer|to tarmac|r
+bivouaquer|to bivouac|r
+blackbouler|to blackball|r
+blasphémer|to blaspheme|r
+blaser|to make blasé|r
+bleuir|to turn blue|r
+blinder|to armour|r
+blondir|to go blonde|r
+bobiner|to wind (onto a reel)|r
+boiser|to plant with trees / to panel|r
+bomber|to puff out / to spray-paint|r
+bonifier|to improve|r
+bosseler|to dent / to emboss|r
+boucaner|to smoke (meat)|r
+bouchonner|to be congested (traffic) / to rub down|r
+bougonner|to grumble|r
+boulonner|to bolt|r
+bourlinguer|to travel around a lot|r
+boursicoter|to dabble in stocks|r
+boursoufler|to puff up|r
+bouturer|to take cuttings from|r
+boxer|to box|r
+braconner|to poach (game)|r
+brailler|to bawl|r
+braire|to bray|i
+braiser|to braise|r
+bramer|to bellow (stag)|r
+bredouiller|to mumble|r
+bringuebaler|to shake about|r
+briquer|to scrub|r
+brocanter|to deal in second-hand goods|r
+brocarder|to gibe at|r
+brocher|to stitch (a book)|r
+bruire|to rustle|i
+brumiser|to mist|r
+budgétiser|to budget|r
+buriner|to engrave / to chisel|r
+butiner|to gather nectar|r
+se cabrer|to rear up|r
+cabrioler|to caper|r
+cacheter|to seal (a letter)|r
+cadencer|to give rhythm to|r
+cafarder|to snitch / to feel down|r
+cafouiller|to get in a muddle|r
+cahoter|to jolt|r
+cailler|to curdle|r
+calciner|to char / to burn to ashes|r
+calfeutrer|to draughtproof|r
+calligraphier|to write in calligraphy|r
+cambrer|to arch|r
+canarder|to snipe at|r
+cancaner|to gossip|r
+cannibaliser|to cannibalise|r
+canoniser|to canonise|r
+canonner|to shell|r
+canoter|to go boating|r
+capitaliser|to capitalise|r
+capitonner|to pad|r
+capsuler|to cap (a bottle)|r
+caqueter|to cackle|r
+caracoler|to prance|r
+caramboler|to collide with|r
+carburer|to run (on fuel) / to work hard|r
+carder|to card (wool)|r
+caréner|to streamline / to careen|r
+caricaturer|to caricature|r
+carillonner|to chime|r
+carotter|to swindle (informal)|r
+cartonner|to be a hit (informal)|r
+cascader|to cascade|r
+caser|to fit in / to find a place for|r
+castrer|to castrate|r
+catalyser|to catalyse|r
+catapulter|to catapult|r
+catastropher|to devastate (emotionally)|r
+catégoriser|to categorise|r
+cauchemarder|to have nightmares|r
+cautériser|to cauterise|r
+cavaler|to run around (informal)|r
+caviarder|to redact|r
+ceindre|to gird|i
+ceinturer|to seize round the waist / to surround|r
+centrifuger|to centrifuge|r
+centupler|to increase a hundredfold|r
+cercler|to ring / to hoop|r
+chaîner|to chain together|r
+chalouper|to sway|r
+chaperonner|to chaperone|r
+chapitrer|to lecture / to reprimand|r
+chaparder|to pilfer|r
+charcuter|to butcher (badly)|r
+charrier|to carry along / to tease|r
+chatoyer|to shimmer|r
+chicaner|to quibble|r
+chiner|to hunt for antiques|r
+chipoter|to quibble / to pick at food|r
+chiquer|to chew (tobacco)|r
+chlorer|to chlorinate|r
+choper|to catch / to nab (informal)|r
+chorégraphier|to choreograph|r
+chouchouter|to pamper|r
+chouiner|to whine|r
+christianiser|to christianise|r
+chromer|to chrome-plate|r
+chroniquer|to review / to chronicle|r
+chuinter|to hiss|r
+cimenter|to cement|r
+cingler|to lash / to sting|r
+cintrer|to curve / to take in (a garment)|r
+circoncire|to circumcise|i
+circonvenir|to circumvent|i
+ciseler|to chisel|r
+cisailler|to shear|r
+claironner|to trumpet|r
+clapoter|to lap (water)|r
+claudiquer|to limp|r
+claustrer|to confine|r
+climatiser|to air-condition|r
+cliqueter|to clink / to rattle|r
+cliver|to cleave / to divide|r
+clocher|to be amiss (informal)|r
+cloisonner|to partition|r
+cloîtrer|to cloister|r
+cloner|to clone|r
+cloquer|to blister|r
+clore|to close|i
+clouter|to stud|r
+coacher|to coach|r
+se coaliser|to form a coalition|r
+codifier|to codify|r
+coécrire|to co-write|i
+coéditer|to co-publish|r
+coffrer|to lock up (informal)|r
+cofinancer|to co-finance|r
+cofonder|to co-found|r
+cogérer|to co-manage|r
+collationner|to collate|r
+collectiviser|to collectivise|r
+coloriser|to colourise|r
+commérer|to gossip|r
+commuer|to commute (a sentence)|r
+commuter|to switch|r
+compacter|to compact|r
+compartimenter|to compartmentalise|r
+se complaire|to take pleasure in|i
+complexer|to give a complex to|r
+complexifier|to make more complex|r
+composter|to compost / to punch (a ticket)|r
+comptabiliser|to count / to record (in accounts)|r
+compulser|to consult (documents)|r
+conceptualiser|to conceptualise|r
+se concerter|to consult one another|r
+concocter|to concoct|r
+condescendre|to condescend|r
+confire|to preserve / to candy|i
+confluer|to converge / to merge|r
+congestionner|to congest|r
+congratuler|to congratulate|r
+conjecturer|to conjecture|r
+conjurer|to ward off / to beseech|r
+connoter|to connote|r
+consteller|to stud / to spangle|r
+constiper|to constipate|r
+contextualiser|to contextualise|r
+contingenter|to set quotas on|r
+se contorsionner|to contort oneself|r
+contre-attaquer|to counterattack|r
+contre-indiquer|to contraindicate|r
+contresigner|to countersign|r
+contusionner|to bruise|r
+convoler|to wed (humorous)|r
+convulser|to convulse|r
+coopter|to co-opt|r
+copiner|to be pals with|r
+coproduire|to co-produce|i
+copuler|to copulate|r
+corner|to turn down the corner of / to honk|r
+corréler|to correlate|r
+corseter|to constrict|r
+corser|to spice up / to make harder|r
+cosigner|to co-sign|r
+costumer|to dress up|r
+coter|to quote / to rate|r
+couder|to bend (a pipe)|r
+coudoyer|to rub shoulders with|r
+courroucer|to anger (literary)|r
+crachiner|to drizzle|r
+crachoter|to sputter|r
+cramer|to burn (informal)|r
+crapahuter|to trek over rough ground|r
+craqueler|to crack (a surface)|r
+cravacher|to whip / to work flat out|r
+crédibiliser|to give credibility to|r
+crêper|to backcomb|r
+crépir|to roughcast|r
+cribler|to riddle (with holes)|r
+criminaliser|to criminalise|r
+cristalliser|to crystallise|r
+crocheter|to pick (a lock) / to crochet|r
+crucifier|to crucify|r
+crypter|to encrypt|r
+curer|to clean out|r
+customiser|to customise|r
+cuver|to sleep off (drink)|r
+daller|to pave (with slabs)|r
+damer|to pack down (snow)|r
+damner|to damn|r
+se dandiner|to waddle|r
+darder|to shoot (a look, rays)|r
+déambuler|to stroll about|r
+débarbouiller|to wash (someone's) face|r
+débaucher|to poach (staff) / to lead astray|r
+débiliter|to debilitate|r
+déblatérer|to rant|r
+déboguer|to debug|r
+débouler|to hurtle down / to turn up suddenly|r
+déboulonner|to unbolt / to topple|r
+débouter|to dismiss (a claim)|r
+débrayer|to release the clutch / to stop work|r
+débrider|to unbridle|r
+débriefer|to debrief|r
+décacheter|to unseal|r
+décaféiner|to decaffeinate|r
+décalquer|to trace|r
+décamper|to clear off|r
+décanter|to allow to settle|r
+décapsuler|to take the cap off|r
+décapoter|to put the top down (car)|r
+se décarcasser|to go to a lot of trouble|r
+décélérer|to decelerate|r
+décentrer|to put off-centre|r
+déchanter|to become disillusioned|r
+se déchausser|to take one's shoes off|r
+déchiqueter|to tear to shreds|r
+déchoir|to fall / to strip (of a right)|i
+déclamer|to declaim|r
+déclassifier|to declassify|r
+décocher|to shoot (an arrow) / to untick|r
+décoiffer|to mess up (someone's) hair|r
+décoloniser|to decolonise|r
+décomplexer|to free of inhibitions|r
+déconsidérer|to discredit|r
+déconstruire|to deconstruct|i
+décontaminer|to decontaminate|r
+décontenancer|to disconcert|r
+découcher|to stay out all night|r
+découdre|to unpick|i
+découpler|to decouple|r
+décrasser|to scrub clean|r
+décrédibiliser|to undermine the credibility of|r
+décrier|to disparage|r
+décrisper|to ease (tension)|r
+décrotter|to scrape the mud off|r
+décrypter|to decipher / to decrypt|r
+déculpabiliser|to relieve of guilt|r
+dédicacer|to sign / to dedicate (a book)|r
+se dédire|to go back on one's word|i
+dédouaner|to clear through customs|r
+dédoubler|to split in two|r
+défalquer|to deduct|r
+se défausser|to discard / to shirk|r
+déféquer|to defecate|r
+déférer|to refer (to a court) / to defer|r
+déficeler|to untie|r
+défiscaliser|to exempt from tax|r
+se défouler|to let off steam|r
+défourner|to take out of the oven|r
+défragmenter|to defragment|r
+défrayer|to pay the expenses of|r
+défriser|to straighten (hair)|r
+dégarnir|to empty / to thin out|r
+dégénérer|to degenerate|r
+déglacer|to deglaze|r
+déglinguer|to bust (informal)|r
+dégoter|to dig up / to find (informal)|r
+dégoutter|to drip|r
+dégrafer|to unfasten|r
+dégriser|to sober up|r
+dégrossir|to rough out|r
+se déhancher|to sway one's hips|r
+déifier|to deify|r
+se délabrer|to fall into disrepair|r
+délacer|to unlace|r
+délaver|to fade / to wash out|r
+délayer|to thin / to mix (with liquid)|r
+délester|to relieve (of a load)|r
+se déliter|to crumble / to disintegrate|r
+démagnétiser|to demagnetise|r
+se démarquer|to stand out / to distance oneself|r
+dématérialiser|to dematerialise / to go paperless|r
+démembrer|to dismember|r
+démettre|to dislocate / to dismiss|i
+démilitariser|to demilitarise|r
+déminer|to clear of mines|r
+démobiliser|to demobilise|r
+se démoder|to go out of fashion|r
+démordre|to give up (an opinion)|r
+démotiver|to demotivate|r
+démultiplier|to gear down / to multiply|r
+démunir|to deprive|r
+démystifier|to demystify|r
+dénationaliser|to denationalise|r
+déneiger|to clear of snow|r
+dénier|to deny|r
+dépaqueter|to unpack|r
+se départir|to abandon (an attitude)|i
+se dépatouiller|to get by (informal)|r
+dépayser|to give a change of scene to|r
+dépecer|to cut up / to carve up|r
+dépersonnaliser|to depersonalise|r
+se dépêtrer|to extricate oneself|r
+dépiter|to vex|r
+déplumer|to pluck / to lose feathers|r
+dépolitiser|to depoliticise|r
+dépraver|to deprave|r
+dépressuriser|to depressurise|r
+déprogrammer|to cancel (a programme) / to deprogram|r
+déraisonner|to talk nonsense|r
+dératiser|to clear of rats|r
+déréférencer|to delist|r
+déréglementer|to deregulate|r
+dérider|to cheer up|r
+dérouiller|to remove rust from / to loosen up|r
+se désabonner|to unsubscribe|r
+désabuser|to disillusion|r
+désaccorder|to put out of tune|r
+désacraliser|to strip of sacredness|r
+désaffecter|to decommission|r
+désagréger|to break up / to disintegrate|r
+désambiguïser|to disambiguate|r
+désamianter|to remove asbestos from|r
+désappointer|to disappoint|r
+désarçonner|to throw (a rider) / to nonplus|r
+désarticuler|to dislocate|r
+désassembler|to take apart|r
+désavouer|to disown / to disavow|r
+desceller|to unseal / to work loose|r
+désembuer|to demist|r
+désemplir|to empty|r
+désenchanter|to disenchant|r
+désenclaver|to open up (a region)|r
+désencombrer|to clear|r
+se désendetter|to get out of debt|r
+désenfler|to become less swollen|r
+désengager|to disengage|r
+désengorger|to unblock / to ease congestion in|r
+désensibiliser|to desensitise|r
+désépaissir|to thin out|r
+se désertifier|to turn into desert|r
+déshumaniser|to dehumanise|r
+déshumidifier|to dehumidify|r
+désillusionner|to disillusion|r
+désincarcérer|to free (from a wreck)|r
+désindustrialiser|to deindustrialise|r
+désinformer|to disinform|r
+désinhiber|to disinhibit|r
+se désinscrire|to unsubscribe|i
+désintégrer|to disintegrate|r
+désinvestir|to disinvest|r
+désinviter|to disinvite|r
+désobliger|to offend|r
+désodoriser|to deodorise|r
+se désolidariser|to dissociate oneself|r
+dessaisir|to relieve (of)|r
+dessaler|to desalt|r
+dessoûler|to sober up|r
+dessouder|to unsolder|r
+déstocker|to sell off stock|r
+déstructurer|to break down the structure of|r
+désynchroniser|to desynchronise|r
+détaler|to bolt / to scamper off|r
+détaxer|to remove tax from|r
+détoner|to detonate|r
+détonner|to clash / to be out of place|r
+détourer|to cut out (an image)|r
+détraquer|to put out of order|r
+détremper|to soak / to make soggy|r
+détromper|to set straight|r
+détrousser|to rob|r
+dévaluer|to devalue|r
+dévider|to unwind|r
+deviser|to converse|r
+dévitaliser|to devitalise (a tooth)|r
+dévoyer|to lead astray|r
+digitaliser|to digitalise|r
+diplômer|to award a diploma to|r
+discipliner|to discipline|r
+discutailler|to quibble|r
+disgracier|to disgrace|r
+disjoindre|to separate|i
+dispatcher|to dispatch / to distribute|r
+disséminer|to scatter / to disseminate|r
+disséquer|to dissect|r
+disserter|to hold forth / to write an essay|r
+se distancier|to distance oneself|r
+distordre|to distort|r
+diviniser|to deify|r
+dodeliner|to nod / to sway (one's head)|r
+domicilier|to domicile|r
+douer|to endow|r
+drainer|to drain|r
+ébahir|to astound|r
+s'ébattre|to frolic|i
+éberluer|to flabbergast|r
+éborgner|to blind in one eye|r
+s'ébouler|to crumble / to cave in|r
+ébrécher|to chip|r
+s'ébrouer|to shake oneself / to snort|r
+écaler|to shell (eggs, nuts)|r
+écarteler|to tear apart / to quarter|r
+échancrer|to cut low / to indent|r
+écharper|to tear to pieces|r
+échauder|to scald|r
+s'échiner|to work oneself to the bone|r
+échoir|to fall due / to fall to|i
+s'éclipser|to slip away|r
+éconduire|to dismiss / to turn away|i
+écorner|to dent / to dog-ear|r
+écrabouiller|to squash|r
+écrouer|to imprison|r
+édicter|to decree / to enact|r
+s'effacer|to fade / to step aside|r
+effarer|to alarm|r
+effeuiller|to pluck the leaves or petals off|r
+effiler|to taper / to fray|r
+effilocher|to fray|r
+s'égosiller|to shout oneself hoarse|r
+égorger|to cut the throat of|r
+égrener|to shell / to tell (beads) / to mark (the hours)|r
+élider|to elide|r
+élimer|to wear thin|r
+éluder|to evade|r
+émailler|to enamel / to pepper (with)|r
+émarger|to sign (an attendance sheet)|r
+émasculer|to emasculate|r
+embaumer|to embalm / to be fragrant|r
+embobiner|to bamboozle|r
+s'embourber|to get stuck in the mud|r
+s'embourgeoiser|to become middle-class|r
+embouteiller|to bottle / to jam (traffic)|r
+emboutir|to crash into / to stamp (metal)|r
+embrigader|to recruit / to indoctrinate|r
+embrocher|to skewer|r
+embrumer|to mist over|r
+s'embusquer|to lie in ambush|r
+émincer|to slice thinly|r
+emmailloter|to swaddle|r
+emmurer|to wall up|r
+émoustiller|to titillate|r
+empailler|to stuff (an animal)|r
+empaler|to impale|r
+s'empâter|to put on weight / to thicken|r
+empeser|to starch|r
+s'empêtrer|to get tangled up|r
+s'empiffrer|to stuff oneself|r
+emplir|to fill|r
+empreindre|to imprint|i
+émuler|to emulate|r
+émulsionner|to emulsify|r
+encager|to cage|r
+encapsuler|to encapsulate|r
+encarter|to insert (a leaflet)|r
+encastrer|to embed / to build in|r
+encaustiquer|to wax (polish)|r
+enchâsser|to set / to embed|r
+enchérir|to bid|r
+enchevêtrer|to tangle|r
+enclaver|to enclose|r
+enclore|to enclose|i
+encocher|to notch|r
+encoller|to paste|r
+s'encorder|to rope up|r
+encorner|to gore|r
+s'encroûter|to get into a rut|r
+endeuiller|to plunge into mourning|r
+endiguer|to dam / to contain|r
+s'endimancher|to put on one's Sunday best|r
+endoctriner|to indoctrinate|r
+endolorir|to make ache|r
+enfiévrer|to inflame|r
+engazonner|to turn into lawn|r
+engluer|to trap (in something sticky)|r
+engorger|to clog|r
+s'engouer|to develop a craze for|r
+enguirlander|to tell off / to garland|r
+enjôler|to cajole|r
+enluminer|to illuminate (a manuscript)|r
+enneiger|to cover in snow|r
+ennoblir|to ennoble / to dignify|r
+s'enorgueillir|to pride oneself|r
+enraciner|to root|r
+s'enrouer|to go hoarse|r
+enrubanner|to tie with ribbon|r
+s'ensabler|to get stuck in sand / to silt up|r
+ensacher|to bag|r
+ensanglanter|to cover in blood|r
+ensemencer|to sow / to seed|r
+enserrer|to grip tightly / to hem in|r
+ensoleiller|to fill with sunshine|r
+entartrer|to scale up (with limescale)|r
+entortiller|to twist / to wind|r
+entr'apercevoir|to catch a brief glimpse of|i
+entrebâiller|to half-open|r
+s'entrechoquer|to knock together|r
+entrecouper|to intersperse|r
+entrecroiser|to interlace|r
+entrelacer|to intertwine|r
+s'entremettre|to intervene / to mediate|i
+s'entretuer|to kill one another|r
+s'envaser|to silt up|r
+épancher|to pour out (feelings)|r
+épandre|to spread (fertiliser)|r
+épépiner|to deseed|r
+éperonner|to spur|r
+épiloguer|to go on and on (about)|r
+épouiller|to delouse|r
+équarrir|to square off / to cut up (a carcass)|r
+équeuter|to remove the stalk from|r
+ergoter|to quibble|r
+érotiser|to eroticise|r
+éructer|to belch|r
+s'escrimer|to struggle (to do)|r
+essaimer|to swarm / to spread|r
+essouffler|to leave breathless|r
+s'essouffler|to get out of breath|r
+estamper|to stamp / to swindle|r
+estampiller|to stamp (officially)|r
+étager|to arrange in tiers|r
+étancher|to quench / to stem|r
+étatiser|to bring under state control|r
+étêter|to cut the top off|r
+s'étioler|to wilt / to wither|r
+étriller|to curry (a horse) / to thrash|r
+étriper|to gut|r
+étuver|to steam / to braise|r
+européaniser|to europeanise|r
+euthanasier|to euthanise|r
+évangéliser|to evangelise|r
+évaser|to flare / to widen|r
+éventer|to fan / to expose (a secret)|r
+éventrer|to disembowel / to rip open|r
+s'évertuer|to strive|r
+exalter|to excite / to exalt|r
+excaver|to excavate|r
+excepter|to except|r
+exciser|to excise|r
+excommunier|to excommunicate|r
+excréter|to excrete|r
+exemplifier|to exemplify|r
+exfiltrer|to exfiltrate|r
+exfolier|to exfoliate|r
+exhausser|to raise (a building)|r
+exhorter|to exhort / to urge|r
+exorciser|to exorcise|r
+expectorer|to cough up|r
+expurger|to expurgate|r
+exsuder|to exude|r
+externaliser|to outsource|r
+extruder|to extrude|r
+fabuler|to make up stories|r
+fainéanter|to laze around|r
+faisander|to hang (game)|r
+fanatiser|to make fanatical|r
+faner|to fade / to wilt|r
+fanfaronner|to boast|r
+farder|to make up (the face) / to disguise|r
+faufiler|to tack (sewing)|r
+faxer|to fax|r
+fayoter|to suck up (informal)|r
+féminiser|to feminise|r
+fendiller|to crack (finely)|r
+fermenter|to ferment|r
+ferrailler|to cross swords|r
+ferrer|to shoe (a horse)|r
+fesser|to spank|r
+feuler|to growl (tiger)|r
+feutrer|to felt / to muffle|r
+fiabiliser|to make more reliable|r
+ficher|to file (on record) / to stick in|r
+filouter|to cheat|r
+finasser|to use trickery|r
+fiscaliser|to tax|r
+flageller|to flog|r
+flageoler|to tremble (legs)|r
+flagorner|to fawn on|r
+flamboyer|to blaze / to flame|r
+flanquer|to flank / to fling|r
+flasher|to flash / to fall for (informal)|r
+flemmarder|to laze about|r
+flétrir|to wither|r
+flinguer|to shoot / to wreck (informal)|r
+floquer|to flock (print)|r
+flouer|to swindle|r
+flouter|to blur|r
+fluidifier|to make more fluid|r
+folâtrer|to frolic|r
+forcir|to fill out / to get stronger|r
+fossiliser|to fossilise|r
+fouler|to tread / to sprain|r
+fourbir|to polish (weapons)|r
+fourcher|to slip (tongue)|r
+fourguer|to flog / to palm off (informal)|r
+se fourvoyer|to go astray|r
+fractionner|to split up|r
+fragmenter|to fragment|r
+fraîchir|to get cooler|r
+fraiser|to mill / to countersink|r
+franchiser|to franchise|r
+franger|to fringe|r
+frayer|to open up (a path) / to spawn|r
+frelater|to adulterate|r
+fréter|to charter (out)|r
+frétiller|to wriggle / to wag|r
+se fringuer|to get dressed (informal)|r
+friper|to crumple|r
+frisotter|to curl slightly|r
+fronder|to rebel against|r
+gaffer|to blunder|r
+gainer|to sheathe / to tone (abs)|r
+galber|to curve / to shape|r
+galvauder|to debase / to cheapen|r
+gamberger|to think hard (informal)|r
+gangrener|to gangrene / to corrupt|r
+ganter|to glove|r
+garrotter|to tie up tightly|r
+gauchir|to warp|r
+gaufrer|to emboss / to crinkle|r
+gauler|to knock down (fruit)|r
+se gausser|to mock|r
+gazéifier|to carbonate|r
+gazer|to gas|r
+gazonner|to turf|r
+gélifier|to gel|r
+gésir|to lie (at rest)|i
+gîter|to list (ship) / to lodge|r
+glander|to loaf around (informal)|r
+se glisser|to slip into|r
+globaliser|to globalise|r
+gloser|to gloss / to comment at length|r
+glouglouter|to gurgle|r
+gondoler|to warp / to crinkle|r
+gorger|to fill / to gorge|r
+goudronner|to tar|r
+goupiller|to pin / to rig up|r
+se gourer|to get it wrong (informal)|r
+gourmander|to rebuke|r
+granuler|to granulate|r
+grappiller|to pick up / to glean|r
+gratouiller|to itch / to strum|r
+gréer|to rig (a ship)|r
+grever|to burden (a budget)|r
+grillager|to fence with wire mesh|r
+grimer|to make up (an actor)|r
+gripper|to seize up|r
+gruger|to dupe|r
+guerroyer|to wage war|r
+gueuler|to yell (informal)|r
+guigner|to eye|r
+habiliter|to authorise / to empower|r
+hachurer|to hatch (drawing)|r
+haler|to haul / to tow|r
+hâler|to tan|r
+handicaper|to handicap|r
+harasser|to exhaust|r
+se hâter|to hurry|r
+hébéter|to daze|r
+héliporter|to transport by helicopter|r
+hélitreuiller|to winch up (by helicopter)|r
+herboriser|to collect plants|r
+se heurter|to collide / to come up against|r
+homogénéiser|to homogenise|r
+honnir|to despise|r
+horodater|to time-stamp|r
+horripiler|to exasperate|r
+houspiller|to scold|r
+humecter|to moisten|r
+humer|to smell / to inhale|r
+hybrider|to hybridise|r
+ignifuger|to fireproof|r
+s'illusionner|to delude oneself|r
+s'imaginer|to imagine / to picture oneself|r
+s'immiscer|to interfere|r
+immuniser|to immunise|r
+impacter|to impact|r
+impartir|to grant / to allot|r
+impatienter|to annoy|r
+impulser|to drive / to give impetus to|r
+incriminer|to incriminate|r
+incuber|to incubate|r
+incurver|to curve|r
+indifférer|to leave indifferent|r
+s'indigner|to be outraged|r
+individualiser|to individualise|r
+infantiliser|to infantilise|r
+inféoder|to subjugate|r
+inférer|to infer|r
+infester|to infest|r
+s'informer|to find out / to enquire|r
+s'ingénier|to strive (ingeniously)|r
+ingurgiter|to gulp down|r
+inoculer|to inoculate|r
+inséminer|to inseminate|r
+insensibiliser|to numb / to anaesthetise|r
+instiller|to instil|r
+instituer|to institute|r
+institutionnaliser|to institutionalise|r
+instrumentaliser|to exploit / to use as a tool|r
+insupporter|to exasperate|r
+intellectualiser|to intellectualise|r
+interconnecter|to interconnect|r
+interfacer|to interface|r
+interjeter|to lodge (an appeal)|r
+interloquer|to take aback|r
+internationaliser|to internationalise|r
+interpoler|to interpolate|r
+intimer|to order / to notify|r
+introniser|to enthrone|r
+intuber|to intubate|r
+invectiver|to hurl abuse at|r
+invertir|to invert|r
+investiguer|to investigate|r
+ioniser|to ionise|r
+iriser|to make iridescent|r
+islamiser|to islamise|r
+itérer|to iterate|r
+jargonner|to talk jargon|r
+javelliser|to bleach / to chlorinate|r
+se jeter|to throw oneself / to flow into|r
+jodler|to yodel|r
+jogger|to jog|r
+se joindre|to join (in)|i
+jointoyer|to point (masonry)|r
+jouter|to joust|r
+jouxter|to adjoin|r
+juguler|to curb / to stamp out|r
+juter|to drip juice|r
+juxtaposer|to juxtapose|r
+labelliser|to give a quality label to|r
+laïciser|to secularise|r
+se laisser|to let oneself|r
+lambiner|to dawdle|r
+lambrisser|to panel|r
+laminer|to laminate / to crush|r
+se lancer|to launch into / to take the plunge|r
+lanciner|to throb / to torment|r
+langer|to change (a baby)|r
+lanterner|to dawdle|r
+larder|to lard|r
+larmoyer|to water (eyes) / to snivel|r
+légender|to caption|r
+lénifier|to soothe|r
+léser|to wrong / to harm|r
+lésiner|to skimp|r
+léviter|to levitate|r
+libeller|to word / to make out (a cheque)|r
+lifter|to put topspin on / to give a facelift to|r
+ligaturer|to ligate|r
+se liguer|to join forces|r
+se livrer|to confide / to indulge in|r
+lober|to lob|r
+lobotomiser|to lobotomise|r
+lorgner|to eye / to covet|r
+lotir|to divide into plots|r
+louanger|to praise|r
+se lover|to coil up / to curl up|r
+lubrifier|to lubricate|r
+luger|to sledge|r
+luxer|to dislocate|r
+lyncher|to lynch|r
+lyophiliser|to freeze-dry|r
+machiner|to plot|r
+mâchonner|to chew at|r
+mâchouiller|to chew on|r
+maçonner|to build (with masonry)|r
+maculer|to stain|r
+magasiner|to shop (Canada)|r
+se magner|to get a move on (informal)|r
+magnétiser|to magnetise|r
+magouiller|to scheme / to fiddle|r
+manucurer|to manicure|r
+manufacturer|to manufacture|r
+manutentionner|to handle (goods)|r
+marauder|to pilfer / to prowl|r
+marbrer|to marble / to mottle|r
+masculiniser|to masculinise|r
+matcher|to match (informal)|r
+matelasser|to pad / to quilt|r
+mater|to subdue / to ogle (informal)|r
+materner|to mother|r
+maugréer|to grumble|r
+mazouter|to pollute with oil|r
+médailler|to award a medal to|r
+médicaliser|to medicalise|r
+mégoter|to skimp|r
+méjuger|to misjudge|r
+se mêler|to mingle / to meddle|r
+mensualiser|to pay monthly|r
+mésestimer|to underestimate|r
+se mesurer|to pit oneself against|r
+métaboliser|to metabolise|r
+métalliser|to metallise|r
+métamorphoser|to transform / to metamorphose|r
+métisser|to crossbreed / to blend|r
+métrer|to measure (in metres)|r
+meuler|to grind (down)|r
+minauder|to simper|r
+miniaturiser|to miniaturise|r
+minorer|to reduce / to play down|r
+minuter|to time|r
+se mirer|to gaze at one's reflection|r
+missionner|to commission / to task|r
+se miter|to become moth-eaten|r
+mitiger|to mitigate|r
+mitrailler|to machine-gun / to bombard|r
+mollir|to soften / to weaken|r
+momifier|to mummify|r
+monétiser|to monetise|r
+monologuer|to soliloquise|r
+se montrer|to show oneself / to prove (to be)|r
+moquetter|to carpet|r
+moraliser|to moralise|r
+morceler|to divide up / to parcel out|r
+mordiller|to nibble|r
+moucheter|to fleck|r
+moutonner|to become fleecy (sky, sea)|r
+moyenner|to average|r
+murer|to wall up / to brick up|r
+musarder|to dawdle|r
+muscler|to build up the muscles of / to strengthen|r
+museler|to muzzle|r
+se mutiner|to mutiny|r
+nantir|to provide (with)|r
+nasiller|to speak through one's nose|r
+nationaliser|to nationalise|r
+naufrager|to be shipwrecked|r
+niaiser|to fool around (Canada)|r
+nidifier|to nest|r
+se nommer|to be named|r
+se nourrir|to feed (oneself) / to eat|r
+noyauter|to infiltrate|r
+obérer|to burden (with debt)|r
+objectiver|to objectify / to make objective|r
+obvier|to obviate|r
+occidentaliser|to westernise|r
+occlure|to occlude|i
+officialiser|to make official|r
+s'offrir|to treat oneself to|i
+oindre|to anoint|i
+ombrer|to shade (a drawing)|r
+opacifier|to make opaque|r
+orbiter|to orbit|r
+ordonnancer|to schedule / to order|r
+s'organiser|to get organised|r
+ornementer|to ornament|r
+ostraciser|to ostracise|r
+ouïr|to hear (archaic)|i
+ourdir|to hatch (a plot)|r
+outrager|to outrage / to insult|r
+outrer|to outrage|r
+s'ouvrir|to open (up)|i
+ovuler|to ovulate|r
+oxyder|to oxidise|r
+paginer|to paginate|r
+pailler|to mulch|r
+pailleter|to spangle|r
+palabrer|to palaver / to talk endlessly|r
+se pâmer|to swoon|r
+panacher|to mix / to vary|r
+papilloter|to blink / to flicker|r
+parader|to parade / to show off|r
+parapher|to initial|r
+paramétrer|to set (parameters) / to configure|r
+se parjurer|to perjure oneself|r
+se parler|to talk to each other|r
+pasticher|to pastiche|r
+pâtir|to suffer (from)|r
+pâtisser|to bake pastries|r
+pâturer|to graze|r
+paupériser|to impoverish|r
+pavoiser|to deck with flags / to gloat|r
+se payer|to treat oneself to|r
+peinturlurer|to daub with paint|r
+se pelotonner|to curl up|r
+pelucher|to go fluffy / to pill|r
+pendouiller|to dangle|r
+perforer|to perforate / to punch|r
+se périmer|to expire / to go out of date|r
+permuter|to swap / to permute|r
+pérorer|to hold forth|r
+perpétrer|to perpetrate|r
+perpétuer|to perpetuate|r
+persifler|to mock|r
+pétarader|to backfire|r
+péter|to fart / to break (informal)|r
+pétitionner|to petition|r
+phagocyter|to absorb / to engulf|r
+phosphorer|to think hard (informal)|r
+piauler|to cheep|r
+picoler|to booze (informal)|r
+piétonniser|to pedestrianise|r
+pigeonner|to dupe (informal)|r
+pigmenter|to pigment|r
+pilonner|to pound / to shell|r
+piper|to load (dice) / to say a word|r
+pisser|to pee (informal)|r
+se placer|to position oneself|r
+plafonner|to reach a ceiling / to peak|r
+plastiquer|to blow up (with plastic explosive)|r
+plastronner|to swagger|r
+pleuviner|to drizzle|r
+se plier|to submit to / to fold|r
+poêler|to pan-fry|r
+poinçonner|to punch (a ticket) / to hallmark|r
+poindre|to dawn / to appear|i
+poisser|to make sticky|r
+polliniser|to pollinate|r
+polycopier|to duplicate (handouts)|r
+ponctionner|to puncture / to tap|r
+pondérer|to weight / to balance|r
+pontifier|to pontificate|r
+populariser|to popularise|r
+se porter|to be (in health) / to feel|r
+portraiturer|to portray|r
+se poser|to land / to arise|r
+postdater|to postdate|r
+potiner|to gossip|r
+poudrer|to powder|r
+pourfendre|to assail / to cleave|r
+se pourlécher|to lick one's lips|r
+se pousser|to move over|r
+précariser|to make precarious|r
+prédéfinir|to predefine|r
+prédéterminer|to predetermine|r
+préempter|to pre-empt|r
+préenregistrer|to pre-record|r
+préétablir|to pre-establish|r
+préexister|to pre-exist|r
+préfabriquer|to prefabricate|r
+préfacer|to write a preface for|r
+préjuger|to prejudge|r
+préluder|to be a prelude to|r
+préméditer|to premeditate|r
+se prendre|to get caught / to take oneself (for)|i
+prépayer|to prepay|r
+préposer|to appoint|r
+prérégler|to preset|r
+se presser|to hurry|r
+pressurer|to squeeze / to press|r
+présupposer|to presuppose|r
+priser|to prize / to take snuff|r
+problématiser|to problematise|r
+procréer|to procreate|r
+se produire|to happen / to perform|i
+professer|to profess|r
+professionnaliser|to professionalise|r
+proportionner|to proportion|r
+se prosterner|to bow down / to prostrate oneself|r
+prostituer|to prostitute|r
+provisionner|to fund / to set aside (funds)|r
+psalmodier|to chant|r
+publiciser|to publicise|r
+pulser|to pulse|r
+putréfier|to putrefy|r
+se quitter|to part (from each other)|r
+rabibocher|to patch up / to reconcile (informal)|r
+rabioter|to scrounge extra (informal)|r
+se rabougrir|to shrivel|r
+racoler|to solicit / to tout for|r
+radiodiffuser|to broadcast (by radio)|r
+radoucir|to soften / to make milder|r
+ragoter|to gossip|r
+rainurer|to groove|r
+rajuster|to readjust / to straighten|r
+rameuter|to round up|r
+se ramifier|to branch out|r
+rançonner|to hold to ransom|r
+randomiser|to randomise|r
+se ranger|to pull over / to settle down|r
+rapiécer|to patch|r
+rappliquer|to turn up (informal)|r
+rasseoir|to sit back down|i
+rasséréner|to calm / to reassure|r
+rassir|to go stale|r
+ratatiner|to shrivel|r
+ravauder|to mend / to darn|r
+ravigoter|to perk up|r
+raviner|to gully / to furrow|r
+réabonner|to renew the subscription of|r
+réactualiser|to update again|r
+réadmettre|to readmit|i
+réaffecter|to reassign|r
+réagencer|to rearrange|r
+réaligner|to realign|r
+réarmer|to rearm|r
+réarranger|to rearrange|r
+réassigner|to reassign|r
+réassurer|to reinsure|r
+rebattre|to reshuffle / to harp on|i
+se rebiffer|to hit back / to rebel|r
+reboutonner|to button up again|r
+rebrousser|to turn back / to brush the wrong way|r
+recacheter|to reseal|r
+recaser|to find a new place for|r
+réchapper|to come through / to survive|r
+recoiffer|to redo (someone's) hair|r
+recolorer|to recolour|r
+recombiner|to recombine|r
+reconditionner|to recondition|r
+reconfigurer|to reconfigure|r
+reconnecter|to reconnect|r
+recontacter|to contact again|r
+se recoucher|to go back to bed|r
+recouper|to cut again / to cross-check|r
+recourber|to bend back|r
+se récrier|to exclaim (in protest)|r
+récriminer|to recriminate|r
+recroiser|to cross again / to run into again|r
+recuire|to recook|i
+redécorer|to redecorate|r
+rediscuter|to discuss again|r
+redorer|to regild / to restore (an image)|r
+rééchelonner|to reschedule (a debt)|r
+réembaucher|to rehire|r
+réemployer|to reuse / to re-employ|r
+réengager|to re-engage / to re-enlist|r
+réenregistrer|to re-record|r
+réentendre|to hear again|r
+réétudier|to re-study|r
+réexpédier|to forward / to send back|r
+réexporter|to re-export|r
+refaçonner|to reshape|r
+refiler|to palm off (informal)|r
+refluer|to flow back / to ebb|r
+refonder|to refound|r
+reformater|to reformat|r
+reformer|to re-form|r
+réfracter|to refract|r
+se regarder|to look at oneself / each other|r
+regarnir|to restock / to refill|r
+regeler|to freeze again|r
+régenter|to rule over / to boss|r
+regimber|to balk|r
+régionaliser|to regionalise|r
+regoûter|to taste again|r
+regrimper|to climb back up|r
+réhabituer|to reaccustom|r
+réhydrater|to rehydrate|r
+réifier|to reify|r
+réimplanter|to re-establish / to reimplant|r
+réimporter|to reimport|r
+se réincarner|to be reincarnated|r
+réinjecter|to reinject|r
+réinscrire|to re-register|i
+réinsérer|to reintegrate / to reinsert|r
+réinterpréter|to reinterpret|r
+réintroduire|to reintroduce|i
+réinviter|to invite again|r
+rejaillir|to splash back / to reflect on|r
+rejuger|to retry (a case)|r
+relacer|to lace up again|r
+relaver|to rewash|r
+relocaliser|to relocate (back)|r
+relouer|to relet / to rent again|r
+reluquer|to ogle (informal)|r
+remâcher|to brood over|r
+remaquiller|to redo (someone's) make-up|r
+remarcher|to walk again / to work again|r
+rembarquer|to re-embark|r
+rembarrer|to snub / to put in one's place|r
+remblayer|to fill in / to bank up|r
+remboîter|to put back (a joint)|r
+se rembrunir|to darken (face)|r
+remeubler|to refurnish|r
+remilitariser|to remilitarise|r
+remiser|to put away|r
+remmener|to take back|r
+remontrer|to show again|r
+rempailler|to re-seat (a chair)|r
+rempiler|to re-enlist / to sign on again|r
+se remplumer|to put weight back on|r
+renfoncer|to push further in|r
+rengainer|to sheathe / to hold back|r
+se rengorger|to puff oneself up|r
+réoccuper|to reoccupy|r
+réopérer|to operate on again|r
+réordonner|to reorder|r
+se repaître|to feast on|i
+reparaître|to reappear|i
+reparler|to speak again|r
+repayer|to pay again|r
+reperdre|to lose again|r
+répertorier|to list / to catalogue|r
+repiquer|to plant out / to prick again|r
+replâtrer|to replaster / to patch up|r
+republier|to republish|r
+répudier|to repudiate|r
+réputer|to repute|r
+requalifier|to reclassify|r
+requêter|to query (a database)|r
+resocialiser|to resocialise|r
+se résoudre|to resolve / to bring oneself to|i
+se ressembler|to look alike|r
+ressemeler|to resole|r
+ressouder|to weld back / to reunite|r
+retailler|to recut / to re-sharpen|r
+rétamer|to wreck (informal) / to re-tin|r
+reteindre|to dye again|i
+retéléphoner|to phone again|r
+retendre|to retighten|r
+se retirer|to withdraw / to retire|r
+retordre|to twist / to wring again|r
+rétracter|to retract|r
+retraduire|to retranslate|i
+retraverser|to cross again|r
+rétribuer|to pay / to remunerate|r
+rétroagir|to act retroactively|r
+rétrocéder|to hand back|r
+rétropédaler|to backpedal|r
+se retrouver|to meet up / to find oneself|r
+revacciner|to revaccinate|r
+revaloir|to pay back / to get even|i
+réveillonner|to celebrate Christmas Eve or New Year's Eve|r
+se révéler|to prove (to be)|r
+reverdir|to turn green again|r
+révérer|to revere|r
+revisser|to screw back on|r
+revoter|to vote again|r
+rider|to wrinkle|r
+rigidifier|to stiffen|r
+ringardiser|to make look outdated|r
+ripailler|to feast|r
+riper|to slip / to skid|r
+rissoler|to brown (food)|r
+ristourner|to give a rebate|r
+ritualiser|to ritualise|r
+roder|to run in / to break in|r
+roquer|to castle (chess)|r
+rouer|to beat (with blows)|r
+roupiller|to snooze (informal)|r
+router|to route|r
+rutiler|to gleam|r
+sabler|to sand / to grit|r
+saquer|to sack (informal)|r
+sacraliser|to treat as sacred|r
+saillir|to jut out|i
+se saisir|to seize / to grab|r
+salarier|to put on the payroll|r
+se salir|to get dirty|r
+sanctuariser|to ring-fence / to make a sanctuary of|r
+soûler|to make drunk / to wear out (informal)|r
+satelliser|to put into orbit|r
+satiner|to give a satin finish to|r
+satiriser|to satirise|r
+saumurer|to pickle in brine|r
+sautiller|to hop / to skip|r
+scalper|to scalp|r
+scarifier|to scarify|r
+scénariser|to script|r
+se scléroser|to become ossified / to harden|r
+scratcher|to scratch / to withdraw (sport)|r
+seconder|to assist|r
+sécréter|to secrete|r
+sectionner|to sever|r
+séculariser|to secularise|r
+sédentariser|to settle (a population)|r
+ségréguer|to segregate|r
+seoir|to suit / to become|i
+sérier|to classify / to arrange in series|r
+seriner|to drum (something) into|r
+se serrer|to squeeze up / to huddle|r
+sevrer|to wean|r
+sexualiser|to sexualise|r
+shooter|to shoot (ball, photo)|r
+shunter|to bypass|r
+signaliser|to signpost|r
+singer|to ape / to mimic|r
+se singulariser|to stand out|r
+smasher|to smash (tennis)|r
+sniffer|to sniff / to snort|r
+se soigner|to look after oneself / to get treatment|r
+se solidariser|to show solidarity|r
+soliloquer|to soliloquise|r
+somatiser|to somatise|r
+sonoriser|to add sound to / to fit a sound system in|r
+s'en sortir|to cope / to pull through|i
+souffleter|to slap (literary)|r
+soumissionner|to tender (a bid)|r
+sourdre|to well up|i
+sous-alimenter|to undernourish|r
+sous-employer|to underuse|r
+sous-exploiter|to underexploit|r
+sous-exposer|to underexpose|r
+sous-utiliser|to underutilise|r
+spoiler|to spoil (a plot)|r
+stariser|to make a star of|r
+statuer|to rule / to give a verdict|r
+statufier|to turn into a statue|r
+sténographier|to take down in shorthand|r
+stratifier|to stratify|r
+streamer|to stream|r
+striduler|to chirr|r
+strier|to streak / to groove|r
+stupéfaire|to stun|i
+subjuguer|to captivate / to subjugate|r
+subordonner|to subordinate|r
+suborner|to bribe (a witness)|r
+subvertir|to subvert|r
+se succéder|to follow one another|r
+suçoter|to suck at|r
+sulfater|to spray with copper sulphate|r
+supplanter|to supplant|r
+suppléer|to make up for / to stand in for|r
+supplémenter|to supplement|r
+supplicier|to torture|r
+suppurer|to suppurate|r
+supputer|to calculate / to reckon|r
+surabonder|to overabound|r
+surajouter|to add on top|r
+suralimenter|to overfeed|r
+surbooker|to overbook|r
+surdimensionner|to oversize|r
+surélever|to raise / to heighten|r
+se surendetter|to get heavily into debt|r
+surentraîner|to overtrain|r
+suréquiper|to overequip|r
+surexciter|to overexcite|r
+surfacturer|to overcharge|r
+surfaire|to overrate|i
+surimposer|to overtax|r
+surir|to turn sour|r
+surinvestir|to overinvest|r
+surpeupler|to overpopulate|r
+surpiquer|to topstitch|r
+surproduire|to overproduce|i
+surréagir|to overreact|r
+surseoir|to defer / to stay|i
+surtaxer|to surcharge|r
+surtitrer|to surtitle|r
+survendre|to oversell|r
+survolter|to boost / to overexcite|r
+sustenter|to sustain / to feed|r
+swinguer|to swing (music)|r
+synthétiser|to synthesise|r
+syntoniser|to tune (a radio)|r
+tabuler|to tabulate|r
+tacler|to tackle|r
+taillader|to slash / to gash|r
+talquer|to put talc on|r
+tancer|to scold|r
+tarabuster|to pester|r
+tarauder|to torment / to tap (a thread)|r
+se targuer|to boast of|r
+tchatcher|to chat (informal)|r
+télécopier|to fax|r
+télédiffuser|to broadcast (on TV)|r
+télégraphier|to telegraph|r
+téléguider|to control remotely|r
+se téléphoner|to phone each other|r
+téléporter|to teleport|r
+se terminer|to end|r
+théâtraliser|to dramatise|r
+thésauriser|to hoard (money)|r
+tintinnabuler|to tinkle|r
+se tirer|to clear off (informal) / to get out of|r
+tisonner|to poke (a fire)|r
+toaster|to toast (bread) / to drink a toast to|r
+tonitruer|to thunder (voice)|r
+torcher|to wipe (informal)|r
+se tordre|to twist / to writhe|r
+toréer|to fight bulls|r
+torsader|to twist (into a cable pattern)|r
+touiller|to stir (informal)|r
+tourbillonner|to swirl / to whirl|r
+tournebouler|to turn (someone's) head upside down|r
+se tourner|to turn (towards)|r
+tournicoter|to wander round and round|r
+toussoter|to cough slightly|r
+tracter|to tow / to hand out leaflets|r
+traînasser|to dawdle|r
+transbahuter|to lug around (informal)|r
+transborder|to transship|r
+transcoder|to transcode|r
+se transformer|to change / to turn into|r
+transhumer|to move to summer pastures|r
+transir|to chill to the bone|r
+translittérer|to transliterate|r
+transmuter|to transmute|r
+trembloter|to tremble slightly / to flicker|r
+trépaner|to trepan|r
+trépider|to vibrate|r
+tressauter|to jump / to jolt|r
+treuiller|to winch|r
+trianguler|to triangulate|r
+trifouiller|to rummage about (informal)|r
+trimer|to slave away (informal)|r
+tripatouiller|to tamper with (informal)|r
+trompeter|to trumpet|r
+trousser|to truss / to hitch up|r
+truander|to swindle (informal)|r
+trucider|to bump off (informal)|r
+truster|to monopolise|r
+se tuer|to be killed / to kill oneself|r
+tuméfier|to make swell|r
+turbiner|to slog (informal)|r
+turlupiner|to bother / to nag at|r
+tuyauter|to tip off (informal)|r
+ulcérer|to appal / to ulcerate|r
+ululer|to hoot|r
+universaliser|to universalise|r
+urger|to be urgent (informal)|r
+s'user|to wear out|r
+vagir|to wail (newborn)|r
+vampiriser|to drain / to vampirise|r
+vanner|to winnow / to wear out (informal)|r
+se vautrer|to wallow / to sprawl|r
+végétaliser|to plant with vegetation|r
+vêler|to calve|r
+se vendre|to sell (well) / to sell oneself|r
+verdoyer|to be green and lush|r
+verglacer|to ice over|r
+versifier|to versify|r
+viabiliser|to service (land)|r
+vicier|to pollute / to taint|r
+se vider|to empty|r
+vilipender|to revile|r
+vinaigrer|to season with vinegar|r
+vinifier|to make into wine|r
+violenter|to assault|r
+violer|to violate (a law) / to rape|r
+vitrifier|to vitrify / to varnish (a floor)|r
+vitupérer|to rail against|r
+vivifier|to invigorate|r
+vocaliser|to vocalise|r
+vociférer|to shout angrily|r
+voguer|to sail|r
+se voir|to see oneself / each other|i
+voisiner|to be side by side|r
+voûter|to arch / to make stoop|r
+vriller|to spiral / to pierce|r
+vulcaniser|to vulcanise|r
+zébrer|to streak / to stripe|r
+zézayer|to lisp|r
+zieuter|to eye (informal)|r
+zigouiller|to bump off (informal)|r
+zipper|to zip|r
+zoner|to hang about (informal) / to zone|r
+zozoter|to lisp|r
+s'aimer|to love each other / oneself|r
+s'appuyer|to lean on / to rely on|r
+s'arranger|to work out / to manage|r
+s'associer|to join forces|r
+s'assurer|to make sure|r
+s'attacher|to become attached|r
+s'attaquer|to tackle / to attack|r
+s'avancer|to move forward|r
+se briser|to break / to shatter|r
+se calmer|to calm down|r
+se charger|to take care of|r
+se comprendre|to understand each other|i
+se confier|to confide|r
+se connaître|to know each other / oneself|i
+se consacrer|to devote oneself|r
+se contenter|to make do with|r
+se croire|to think oneself|i
+se croiser|to pass each other|r
+se déchirer|to tear / to tear each other apart|r
+se déclarer|to declare oneself / to break out|r
+se défendre|to defend oneself|r
+se dégager|to free oneself / to clear|r
+se déguiser|to dress up|r
+se déplacer|to move / to travel|r
+se déranger|to go out of one's way|r
+se détacher|to come off / to stand out|r
+se détourner|to turn away|r
+se développer|to develop / to grow|r
+se dire|to say to oneself|i
+se diriger|to head (towards)|r
+se distinguer|to distinguish oneself|r
+se distraire|to amuse oneself|i
+se divertir|to enjoy oneself|r
+se donner|to give oneself / to devote oneself|r
+se dresser|to stand up / to rise|r
+s'éclaircir|to clear (up)|r
+s'éclairer|to light up|r
+s'écraser|to crash|r
+s'élever|to rise|r
+s'éloigner|to move away (oneself)|r
+s'embarquer|to board / to embark on|r
+s'emmêler|to get tangled|r
+s'enfermer|to shut oneself in|r
+s'enfoncer|to sink in|r
+s'engager|to commit oneself / to enlist|r
+s'enrichir|to get rich|r
+s'entourer|to surround oneself|r
+s'épuiser|to wear oneself out / to run out|r
+s'équiper|to equip oneself|r
+s'essuyer|to dry oneself|r
+s'établir|to settle / to set up|r
+s'éteindre|to go out / to pass away|i
+s'étendre|to stretch out / to spread|r
+s'étouffer|to choke|r
+s'éveiller|to wake up|r
+s'exercer|to practise|r
+s'expliquer|to explain oneself|r
+s'exposer|to expose oneself|r
+se faire|to become / to get (done)|i
+se fatiguer|to get tired|r
+se fermer|to close|r
+se figer|to freeze / to stiffen|r
+se fixer|to settle / to set oneself|r
+se former|to form / to train|r
+se frotter|to rub oneself / to take on|r
+se gêner|to put oneself out|r
+se gratter|to scratch oneself|r
+s'identifier|to identify (with)|r
+s'imposer|to assert oneself / to be essential|r
+s'inspirer|to draw inspiration from|r
+s'intégrer|to integrate / to fit in|r
+s'interroger|to wonder|r
+s'isoler|to isolate oneself|r
+se jouer|to be played / to make light of|r
+se libérer|to free oneself|r
+se limiter|to limit oneself|r
+se loger|to find housing|r
+se manifester|to appear / to make oneself known|r
+se mobiliser|to mobilise / to rally|r
+se mouiller|to get wet|r
+se multiplier|to multiply|r
+se partager|to share (between themselves)|r
+se passionner|to have a passion for|r
+se permettre|to allow oneself|i
+se plonger|to immerse oneself|r
+se priver|to deprive oneself|r
+se procurer|to obtain|r
+se promettre|to promise oneself|i
+se prononcer|to give one's opinion / to be pronounced|r
+se protéger|to protect oneself|r
+se qualifier|to qualify|r
+se rassembler|to gather|r
+se rassurer|to reassure oneself|r
+se rattraper|to make up for it / to catch oneself|r
+se réchauffer|to warm up|r
+se reconnaître|to recognise oneself / each other|i
+se redresser|to straighten up|r
+se réduire|to be reduced / to boil down to|i
+se référer|to refer to|r
+se refermer|to close up|r
+se refroidir|to get colder|r
+se relâcher|to slacken|r
+se relaxer|to relax|r
+se relever|to get back up|r
+se remettre|to recover / to start again|i
+se remplir|to fill up|r
+se rencontrer|to meet (each other)|r
+se renfermer|to withdraw into oneself|r
+se renouveler|to renew oneself / to recur|r
+se renverser|to overturn|r
+se répandre|to spread|r
+se répéter|to repeat oneself|r
+se replier|to withdraw / to fall back|r
+se reproduire|to reproduce / to recur|i
+se réserver|to reserve for oneself|r
+se respecter|to respect oneself|r
+se resserrer|to tighten / to narrow|r
+se retenir|to hold back / to restrain oneself|i
+se révolter|to rebel|r
+se risquer|to venture|r
+se ruiner|to ruin oneself|r
+se sacrifier|to sacrifice oneself|r
+se situer|to be situated|r
+se soumettre|to submit|i
+se soutenir|to support each other|i
+se stabiliser|to stabilise|r
+se suffire|to be self-sufficient|i
+se suivre|to follow one another|i
+se surpasser|to surpass oneself|r
+se tacher|to get stains on oneself|r
+se toucher|to touch (each other)|r
+se traduire|to be translated / to result in|i
+se trahir|to give oneself away|r
+se transmettre|to be passed on|i
+se tutoyer|to call each other "tu"|r
+s'unir|to unite|r
+se vexer|to take offence|r
+se vouer|to devote oneself|r
+se vouvoyer|to call each other "vous"|r
+s'abaisser|to stoop / to lower oneself|r
+s'abandonner|to give oneself up to|r
+s'abîmer|to get damaged|r
+s'abriter|to take shelter|r
+s'accorder|to agree / to grant oneself|r
+s'accrocher|to hang on / to cling|r
+s'accumuler|to pile up|r
+s'accuser|to accuse oneself|r
+s'adapter|to adapt|r
+s'affaiblir|to grow weak|r
+s'afficher|to be displayed / to flaunt oneself|r
+s'affirmer|to assert oneself|r
+s'affoler|to panic|r
+s'affronter|to confront each other|r
+s'aggraver|to get worse|r
+s'agiter|to fidget / to bustle about|r
+s'agrandir|to grow larger|r
+s'aligner|to line up / to fall into line|r
+s'alimenter|to eat / to feed oneself|r
+s'allier|to form an alliance|r
+s'allumer|to light up / to come on|r
+s'annoncer|to look (promising) / to be on the way|r
+s'apaiser|to calm down|r
+s'appliquer|to apply oneself / to apply to|r
+s'apprêter|to get ready (to)|r
+s'armer|to arm oneself|r
+s'arracher|to tear oneself away / to fight over|r
+s'assembler|to gather|r
+s'autoriser|to allow oneself|r
+s'avouer|to admit (to being)|r
+se balancer|to swing / to sway|r
+se baser|to be based on|r
+se borner|to confine oneself to|r
+se boucher|to get blocked|r
+se bousculer|to jostle|r
+se brouiller|to fall out / to become blurred|r
+se caractériser|to be characterised by|r
+se cultiver|to improve one's mind|r
+se compliquer|to get complicated|r
+se composer|to be made up of|r
+se confirmer|to be confirmed|r
+se confondre|to merge / to be confused|r
+se confronter|to face|r
+se conserver|to keep (food)|r
+se construire|to be built / to build oneself|i
+se contredire|to contradict oneself|i
+se contrôler|to control oneself|r
+se convertir|to convert|r
+se corriger|to correct oneself|r
+se coiffer|to do one's hair|r
+se courber|to bend|r
+se couvrir|to cover up / to cloud over|i
+se creuser|to widen (gap) / to rack (one's brain)|r
+se décourager|to lose heart|r
+se découvrir|to discover oneself / to take off one's hat|i
+se défaire|to come undone / to get rid of|i
+se défiler|to slip away / to dodge|r
+se déformer|to lose shape|r
+se dégonfler|to deflate / to chicken out|r
+se dégrader|to deteriorate|r
+se dépasser|to surpass oneself|r
+se déployer|to deploy / to unfold|r
+se déposer|to settle (dust)|r
+se dessiner|to take shape|r
+se détériorer|to deteriorate|r
+se dévoiler|to reveal oneself|r
+se différencier|to differ|r
+se disperser|to scatter / to spread oneself thin|r
+se dissiper|to clear / to wear off|r
+se dissoudre|to dissolve|i
+se diviser|to divide / to split|r
+se documenter|to gather information|r
+se durcir|to harden|r
+se fendre|to crack|r
+se figurer|to imagine|r
+se fondre|to melt / to blend in|r
+se forcer|to force oneself|r
+se garder|to refrain from / to keep (food)|r
+se généraliser|to become widespread|r
+se justifier|to justify oneself|r
+se lier|to form a friendship / to bind oneself|r
+se maintenir|to hold / to keep oneself|i
+se maîtriser|to control oneself|r
+se pacser|to enter a civil union|r
+se perfectionner|to improve one's skills|r
+se peser|to weigh oneself|r
+se poursuivre|to continue|i
+se préoccuper|to worry about|r
+se prolonger|to go on / to continue|r
+se propager|to spread|r
+se raccrocher|to cling to|r
+se rafraîchir|to cool down / to freshen up|r
+se raidir|to stiffen|r
+se rallier|to rally / to come round to|r
+se réaliser|to come true / to fulfil oneself|r
+se réclamer|to claim to represent|r
+se recueillir|to meditate / to pay one's respects|i
+se reculer|to step back|r
+se reconvertir|to retrain|r
+se régler|to be settled|r
+se rejoindre|to meet up|i
+se relayer|to take turns|r
+se remuer|to move / to get going|r
+se repérer|to find one's way|r
+se reprendre|to pull oneself together / to correct oneself|i
+se résumer|to come down to|r
+se revoir|to see each other again|i
+se rhabiller|to get dressed again|r
+se rincer|to rinse oneself|r
+se soulager|to relieve oneself|r
+se soulever|to rise up|r
+se substituer|to substitute for|r
+se tasser|to settle / to squeeze up|r
+se tendre|to tighten / to become strained|r
+se vérifier|to prove true|r
+se vêtir|to dress oneself|i
+s'y connaître|to know all about|i
+s'y prendre|to go about it|i
+s'en prendre|to attack / to blame|i
+s'en faire|to worry|i
+s'en vouloir|to be annoyed with oneself|i
+se rendre compte|to realise|r
+abêtir|to make stupid|r
+accessoiriser|to accessorise|r
+achalander|to stock (a shop)|r
+affiler|to hone|r
+affrioler|to entice|r
+ahaner|to pant with effort|r
+alpaguer|to collar (informal)|r
+ambiancer|to liven up (informal)|r
+ameublir|to loosen (soil)|r
+anémier|to weaken / to make anaemic|r
+anodiser|to anodise|r
+anonymiser|to anonymise|r
+appointer|to pay a salary to|r
+approximer|to approximate|r
+arabiser|to arabise|r
+araser|to level off|r
+arborer|to sport / to display|r
+s'arc-bouter|to brace oneself|r
+architecturer|to structure|r
+artificialiser|to make artificial / to build over (land)|r
+atermoyer|to procrastinate|r
+attiédir|to make lukewarm|r
+attifer|to rig out|r
+s'autocensurer|to censor oneself|r
+s'autoévaluer|to self-assess|r
+s'automédiquer|to self-medicate|r
+s'autoréguler|to self-regulate|r
+badger|to swipe one's badge|r
+balkaniser|to balkanise|r
+baratter|to churn|r
+barder|to bard (meat) / to turn nasty|r
+barguigner|to dither|r
+bassiner|to bore stiff (informal)|r
+béer|to gape|r
+berner|to fool|r
+besogner|to toil|r
+bêtifier|to talk childishly|r
+biberonner|to bottle-feed|r
+se bidonner|to laugh one's head off (informal)|r
+bigler|to squint at (informal)|r
+bizuter|to haze (new students)|r
+blablater|to waffle (informal)|r
+blettir|to become overripe|r
+bloguer|to blog|r
+blouser|to con|r
+boguer|to crash (software bug)|r
+bonimenter|to give a sales patter|r
+botteler|to bundle|r
+boudiner|to squeeze into (tight clothes)|r
+boulocher|to pill (fabric)|r
+bouter|to drive out (archaic)|r
+brancarder|to carry on a stretcher|r
+braser|to braze|r
+bridger|to play bridge|r
+briefer|to brief|r
+briguer|to seek (office)|r
+brimer|to bully / to victimise|r
+brouillasser|to drizzle (mistily)|r
+bruncher|to have brunch|r
+brutaliser|to brutalise / to mistreat|r
+bureaucratiser|to bureaucratise|r
+butter|to earth up|r
+cabotiner|to ham it up|r
+cafter|to snitch (informal)|r
+caillasser|to throw stones at|r
+calfater|to caulk|r
+candidater|to apply (as a candidate)|r
+caner|to chicken out (informal)|r
+canneler|to flute / to groove|r
+canner|to cane (a chair)|r
+caoutchouter|to rubberise|r
+se carapater|to scram (informal)|r
+carguer|to furl|r
+carier|to decay (teeth)|r
+casquer|to cough up (money, informal)|r
+challenger|to challenge|r
+chambarder|to turn upside down|r
+chambrer|to bring to room temperature / to tease|r
+chanfreiner|to chamfer|r
+chapeauter|to head / to oversee|r
+charpenter|to structure / to build|r
+chatter|to chat (online)|r
+cheviller|to peg|r
+chevroter|to quaver|r
+chialer|to blubber (informal)|r
+ciller|to blink|r
+classifier|to classify|r
+cochonner|to botch (informal)|r
+cocooner|to cocoon|r
+codiriger|to co-direct|r
+collapser|to collapse|r
+se colleter|to grapple with|r
+coltiner|to lug|r
+commercer|to trade|r
+commissionner|to commission|r
+communier|to take communion / to commune|r
+conscientiser|to raise the awareness of|r
+conspuer|to boo / to shout down|r
+contre-braquer|to countersteer|r
+contre-manifester|to counter-demonstrate|r
+contrer|to counter|r
+copiloter|to co-pilot|r
+coprésider|to co-chair|r
+courbaturer|to make ache all over|r
+courser|to chase (informal)|r
+cranter|to notch|r
+se crasher|to crash (informal)|r
+crawler|to swim the crawl|r
+crevasser|to crack / to chap|r
+crotter|to dirty with mud|r
+croustiller|to be crisp|r
+cuirasser|to armour|r
+dactylographier|to type|r
+dealer|to deal (drugs)|r
+déboucler|to unbuckle|r
+débourrer|to break in (a horse)|r
+décaisser|to pay out|r
+décarboner|to decarbonise|r
+décerveler|to make mindless|r
+décloisonner|to break down barriers in|r
+décoincer|to unjam / to loosen up|r
+décolleter|to cut a low neckline in|r
+déconditionner|to decondition|r
+déconfiner|to lift the lockdown on|r
+décongestionner|to relieve congestion in|r
+décorréler|to decorrelate|r
+décoter|to discount|r
+décroiser|to uncross|r
+dédiaboliser|to make respectable again|r
+déforester|to deforest|r
+dégommer|to knock down / to sack (informal)|r
+dégorger|to disgorge / to unblock|r
+dégoupiller|to pull the pin out of|r
+dégrever|to reduce the tax on|r
+déjanter|to go off the rails (informal)|r
+délégitimer|to delegitimise|r
+densifier|to make denser|r
+denteler|to give a jagged edge to|r
+déparasiter|to rid of parasites|r
+déparer|to mar|r
+dépeigner|to mess up the hair of|r
+déplafonner|to remove the ceiling on|r
+déplanter|to uproot|r
+déplisser|to smooth out|r
+dépolir|to frost (glass)|r
+déroger|to depart from (a rule)|r
+désencrasser|to unclog|r
+déshabituer|to break of a habit|r
+désincruster|to remove scale from|r
+désindexer|to de-index|r
+désinsectiser|to rid of insects|r
+dessertir|to unset (a gem)|r
+dessiller|to open (someone's) eyes|r
+détricoter|to unravel|r
+dézinguer|to demolish (informal)|r
+dézipper|to unzip|r
+diffracter|to diffract|r
+dimensionner|to size|r
+discounter|to discount|r
+dogmatiser|to dogmatise|r
+doigter|to finger (music)|r
+doucher|to shower (someone)|r
+driver|to drive (golf) / to manage|r
+dysfonctionner|to malfunction|r
+ébarber|to trim|r
+écimer|to pollard|r
+écloper|to lame|r
+écluser|to pass through a lock|r
+écrêter|to cap / to lop off|r
+éditorialiser|to editorialise|r
+efféminer|to make effeminate|r
+effranger|to fray|r
+électrolyser|to electrolyse|r
+élucubrer|to dream up|r
+embastiller|to imprison|r
+emberlificoter|to tangle up / to bamboozle|r
+emboucher|to put to one's lips (an instrument)|r
+empoissonner|to stock with fish|r
+empourprer|to turn crimson|r
+empoussiérer|to cover with dust|r
+s'encanailler|to slum it|r
+encapuchonner|to put a hood on|r
+s'enferrer|to tie oneself in knots|r
+englober|to include / to encompass|r
+engrener|to engage (gears)|r
+s'enkyster|to become encysted|r
+s'ennuager|to cloud over|r
+ensauvager|to make wild|r
+enténébrer|to plunge into darkness|r
+s'enticher|to become infatuated with|r
+entoiler|to mount on canvas|r
+entuber|to con (informal)|r
+environner|to surround|r
+épierrer|to clear of stones|r
+épisser|to splice|r
+s'époumoner|to shout oneself hoarse|r
+essarter|to clear (land)|r
+esthétiser|to aestheticise|r
+estiver|to summer (livestock)|r
+estourbir|to knock out (informal)|r
+étamer|to tin-plate|r
+étoiler|to stud with stars|r
+évaporer|to evaporate|r
+extuber|to extubate|r
+`;
+
+    const parse = block => block.trim().split("\n").map(line => {
+        const [word, translation, t] = line.split("|");
+        return { word, translation, type: t === "i" ? "irregular" : "regular" };
+    });
+    const sortKey = w => w.replace(/^(se |s'(en |y )?)/, "");
+    const [starter, rest] = data.split("---").map(parse);
+    rest.sort((a, b) => sortKey(a.word).localeCompare(sortKey(b.word), "fr"));
+    const verbs = starter.concat(rest);
+
+    // --- speech -----------------------------------------------------------
+    const synth = window.speechSynthesis;
+    let voices = [];
+    function loadVoices() { voices = synth ? synth.getVoices() : []; }
+    if (synth) { synth.onvoiceschanged = loadVoices; loadVoices(); }
+
+    function speak(word, tile) {
+        if (!synth) return;
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(word);
+        u.lang = "fr-FR";
+        u.rate = 0.85;
+        const voice = voices.find(v => v.lang === "fr-FR") ||
+                      voices.find(v => v.lang && v.lang.toLowerCase().startsWith("fr"));
+        if (voice) u.voice = voice;
+        tile.classList.add("speaking");
+        u.onend = u.onerror = () => tile.classList.remove("speaking");
+        synth.speak(u);
+    }
+
+    // --- tiles ------------------------------------------------------------
+    const grid = document.getElementById("grid");
+    const counts = { regular: 0, irregular: 0 };
+
+    verbs.forEach(v => {
+        counts[v.type]++;
+        const tile = document.createElement("div");
+        tile.className = "word-container " + v.type;
+        tile.tabIndex = 0;
+        tile.setAttribute("role", "button");
+        tile.title = v.type + " verb";
+
+        const w = document.createElement("span");
+        w.className = "french-word";
+        w.lang = "fr";
+        w.textContent = v.word;
+
+        const t = document.createElement("span");
+        t.className = "translation";
+        t.textContent = v.translation;
+
+        tile.append(w, t);
+        tile.addEventListener("click", () => speak(v.word, tile));
+        tile.addEventListener("keydown", e => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); speak(v.word, tile); }
+        });
+        grid.appendChild(tile);
+    });
+
+    // --- shuffle ----------------------------------------------------------
+    // The default order is kept in `original` and never modified; shuffling
+    // only re-appends the same tile elements in a different sequence, so the
+    // default page is always one click away and filters/listeners survive.
+    const original = Array.from(grid.children);
+    const shuffleBtn = document.getElementById("shuffle");
+    const restoreBtn = document.getElementById("restore");
+
+    function arrange(tiles) {
+        const frag = document.createDocumentFragment();
+        tiles.forEach(t => frag.appendChild(t));
+        grid.appendChild(frag);
+        window.scrollTo({ top: 0 });
+    }
+
+    shuffleBtn.addEventListener("click", () => {
+        const deck = original.slice();
+        for (let i = deck.length - 1; i > 0; i--) {          // Fisher–Yates
+            const j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        arrange(deck);
+        restoreBtn.hidden = false;
+    });
+
+    restoreBtn.addEventListener("click", () => {
+        arrange(original);
+        restoreBtn.hidden = true;
+    });
+
+    // --- legend / filter --------------------------------------------------
+    const css = getComputedStyle(document.documentElement);
+    document.querySelectorAll(".legend button[data-type]").forEach(btn => {
+        const type = btn.dataset.type;
+        const hex = css.getPropertyValue("--" + type).trim();
+        btn.textContent = `${type[0].toUpperCase() + type.slice(1)} (${counts[type]}) · ${hex}`;
+        btn.addEventListener("click", () => {
+            const off = btn.classList.toggle("off");
+            btn.setAttribute("aria-pressed", String(!off));
+            grid.querySelectorAll("." + type).forEach(el => el.classList.toggle("hidden", off));
+        });
+    });
+});
+</script>
+</body>
+</html>
