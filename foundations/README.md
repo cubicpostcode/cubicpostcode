@@ -39,3 +39,17 @@ Can every 1 m³ cubic cell be assigned a unique, hierarchical, efficiently rever
 **Archive provenance:** `CubicPostcode-Foundations-Investigation1-2026-11-10.zip`; tip commit recorded in its export as `3686d49e3c8e52a3faa191c34b2aa1cd5c4d1a1f`. This hash refers to the separate exported repository history and is **not** the SHA of this GitHub branch.
 
 **Important:** New mathematical ideas and proofs are encouraged. Production refactors, renumbering, website changes and irreversible historical-identifier decisions are explicitly out of scope.
+
+---
+
+## Investigation 2 (10 November 2026)
+
+Appended; the text above is unchanged. Start with [the dated findings](research/2026-11-10-investigation-2.md).
+
+- **OP-1 resolved (PROVEN):** the minimum number of non-face transitions in a complete cubic-shell traversal is exactly 1 for every `k >= 1`. Candidate **Model C** attains it with one √2 step per shell, face steps between shells, and closed-form rank/unrank. [Proof](mathematics/20-one-break-shell-traversal.md).
+- **New (PROVEN):** a fully face-continuous enumeration of `Z^3` exists once shells are taken two at a time (candidate **Model D**), and a parity law shows this is the best possible. [Proof](mathematics/21-double-shell-face-continuity.md).
+- **Cap-centre theorem independently verified**, shown sharp at `k = 1`, generalised, and made quantitative. [Note](mathematics/11-cap-centre-verification-and-generalisation.md).
+- **Read-only observation:** the encoders currently in the repository disagree with one another and two are not injective. Nothing was changed; see the dated findings.
+- Run all checks: `python3 -I foundations/experiments/run_all.py`.
+
+Models C and D are research candidates. They are not compatible with existing identifiers.
