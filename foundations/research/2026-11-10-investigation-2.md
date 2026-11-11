@@ -70,3 +70,21 @@ I have treated the HTML calculator as the most likely "historical convention", b
 ## Changelog
 
 - 2026-11-10: added `mathematics/11-…`, `20-…`, `21-…`; `experiments/cubicshell.py`, `exp_cap_centre_general.py`, `exp_shell_exact.py`, `exp_model_c.py`, `exp_model_d.py`, `exp_production_readonly.py`, `run_all.py`; `research/2026-11-10-investigation-2.md`, `research/bibliography.md`. Appended dated sections to `README.md`, `research/findings-register.md` and `research/open-problems.md`; no earlier text was altered.
+
+---
+
+## Correction notice (added 2026-11-11, Investigation 3)
+
+The text above is preserved unchanged. **Observation 2 under "Read-only observations on the existing encoders" is wrong for `calc/mobileGPS.html` as written.**
+
+- The page declares `function max(v1, v2, v3)` but calls it with four arguments. JavaScript ignores `-my_z`, so the page computes `max(y+1, z+1, -y)`.
+- The pair `(-s,-s), (-s+1,-s)` does **not** collide in the page: for `s = 2` they give 14 and 3.
+- The pair **does** collide in the four-argument formula of the legacy site (`website.html` Python, `calc/3xyz2cube.html`), which is what this section actually analysed.
+- The page is still non-injective, in a different way. For example, `(0,-1,-1)` and `(0,0,-2)` both give `...0004`.
+- I2-12's broader claim, that encoders disagree and that at least two are not injective, stands. In fact none of the encoders is injective.
+
+The "ring 2" table printed by `exp_production_readonly.py` describes the four-argument formula, not the page.
+
+Details and exact-bytes reproduction: `research/2026-11-11-investigation-3.md` §2 and `experiments/exp_i3_encoder_audit.py`.
+
+The complexity sentence in `mathematics/20-…` ("`O(M(b))` bit operations" for unrank) is withdrawn. See `mathematics/22-rank-unrank-complexity.md`.

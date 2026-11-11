@@ -63,3 +63,29 @@ Does a 26-continuous bijection `N -> Z^3` exist that restricts to the origin-fir
 ## OP-12 — Locality
 
 Measure and bound worst-case and average locality of Models C and D against 3-D Hilbert-type curves (see `research/bibliography.md`), with the metric stated.
+
+---
+
+# Update after Investigation 3 (2026-11-11)
+
+Appended; the text above is unchanged.
+
+## OP-9 — RESOLVED (existence), with refinements open
+
+**Status:** existence is **PROVEN, computer-assisted** for corner-gated designs. Model H5 is strongly hierarchical: every aligned `5^s`-block is one interval, with no fragmentation. Peano-type (opposite-corner) gates are **PROVEN impossible** for a centre-first order. See `mathematics/30-…`.
+
+## OP-13 — Classification of radix-5 grammars
+
+Which corner-gated type sets admit closed grammars? `{E}` and `{F}` do (by search). Is there a proof, without search, that a closed grammar exists for every radix `b ≡ 1 (mod 4)`? Can `b ≡ 3 (mod 4)` be handled at all once centred prefixes (H3) are dropped?
+
+## OP-14 — Non-corner gates
+
+Theorem 9 assumes corner gates. With entry and exit cells elsewhere on the boundary, which properties improve? In particular, is the worst face-neighbour rank gap better?
+
+## OP-15 — Backward locality of H5
+
+Bound the worst rank gap between face-adjacent cells within `B_t` as a function of `t`. Compare H5, C, D, Hilbert and Peano under one stated metric. Can the generator choice reduce the top-level centre-child seam?
+
+## OP-16 — Capacity-aware hierarchy
+
+H5 needs `125^11 > 10^22` ranks to reach the Earth's surface. Is there a hierarchical, face-continuous code (for example with mixed radices, or anchored differently) that covers the Earth within 22 digits? This is linked to Phase 3, which awaits instructions.

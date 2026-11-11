@@ -39,3 +39,19 @@ Appended; the table above is unchanged. Details and proofs: `research/2026-11-10
 | I2-11 exact checks `k=1,2,3` | OBSERVATION | Exhaustive search and CP-SAT |
 | I2-12 existing encoders collide / disagree | OBSERVATION | Read-only; owner decision needed |
 | F-13, F-19 | unchanged: OPEN / DOWNGRADED | Not worked on in Investigation 2 |
+
+## Investigation 3 additions (2026-11-11)
+
+Appended; the tables above are unchanged. Details: `research/2026-11-11-investigation-3.md`.
+
+| ID / theme | Status | Qualification |
+|---|---|---|
+| I2-12 encoder collisions | **CORRECTED** | The pair belongs to the 4-argument legacy formula; `mobileGPS.html` uses a 3-argument `max` and collides differently; no encoder is injective |
+| File 20 unrank bit cost `O(M(b))` | **WITHDRAWN** | Proven for the code as written: `O(D(b) log b)`; the `O(M(b))` root literature is cited but not re-verified |
+| I3-01 / I3-02 reviewer test plus extended C/D checks | OBSERVATION | Radius 10 and exhaustive radius 30; ranks up to `10^1000` |
+| I3-07 opposite-corner (Peano-type) gates cannot start at the centre | **PROVEN (new)** | Any odd radix; corner gates of type O only |
+| I3-08 closed grammar gives a strongly hierarchical, face-continuous, origin-first numbering | **PROVEN (new)** | Corner gates |
+| I3-09 **OP-9: Model H5 exists** (radix 5, centred) | **PROVEN, computer-assisted** | Finite certificate in `mathematics/30-…`; checked on import |
+| I3-10 H5 Hölder bound `‖ΔE‖_∞ ≤ 10·Δn^{1/3}` | **PROVEN (new)** | C and D have no such bound |
+| I3-11 H5 exhaustive on B₃ plus locality versus C and D | OBSERVATION | 1,953,125 cells |
+| I3-12 H5 needs more than 22 digits for the Earth; C and D fit | PROVEN (arithmetic) | Capacity only |

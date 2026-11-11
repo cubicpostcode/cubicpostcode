@@ -53,3 +53,16 @@ Appended; the text above is unchanged. Start with [the dated findings](research/
 - Run all checks: `python3 -I foundations/experiments/run_all.py`.
 
 Models C and D are research candidates. They are not compatible with existing identifiers.
+
+---
+
+## Investigation 3 (11 November 2026)
+
+Appended; the text above is unchanged. Start with [the dated findings](research/2026-11-11-investigation-3.md).
+
+- **Review integrated.** The reviewer's independent C/D test passes in a real checkout. Extended exhaustive checks cover radius 30 and ranks up to `10^1000`.
+- **Corrections, recorded rather than rewritten.**
+  - I2-12's collision pair belongs to the four-argument legacy formula, not to `calc/mobileGPS.html`, which uses a three-argument `max`. No repository encoder is injective.
+  - The unrank `O(M(b))` claim is withdrawn; see [complexity](mathematics/22-rank-unrank-complexity.md).
+- **OP-9 resolved (existence).** **Model H5** is a face-continuous, origin-first numbering of Z³ in which every aligned `5^s`-block is one rank interval at every level. Peano-type gates are provably impossible for a centre-first order. See [the proofs](mathematics/30-radix5-hierarchical-face-continuous.md).
+- H5 is a research candidate. It needs more than 22 digits to cover the Earth, and it is not compatible with existing identifiers.
